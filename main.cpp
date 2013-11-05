@@ -44,6 +44,9 @@ int main ()
     cout<<"5*v1+v2 is..."<<endl;
     (samplevec->axpy(5.0,samplevec2))->print_vector();
     
+    cout<<"Inf Norm: "<<samplevec->infNorm()<<endl;
+    cout<<"Two Norm: "<<samplevec->twoNorm()<<endl;
+    
     cout << "Goodbye world!"<<endl;
     return 0;
 }
