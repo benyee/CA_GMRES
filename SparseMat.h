@@ -10,6 +10,9 @@
 #define ____SparseMat__
 
 #include <iostream>
+#include <fstream>
+#include <cstddef>
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -21,15 +24,17 @@ public:
     ~SparseMat();
     
     vector<double> getA(){return A;}
-    vector<int> getIA(){return IA;}
+    vector<unsigned int> getIA(){return IA;}
     vector<unsigned int> getJA(){return JA;}
+    
+    void readFullMatrix(string inputfile = "example1.txt",char delim = '\t');
     
     void print_matrix();
     
     
 private:
     vector<double> A;
-    vector<int> IA;
+    vector<unsigned int> IA;
     vector<unsigned int> JA;
     
 };
