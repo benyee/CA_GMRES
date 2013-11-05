@@ -40,7 +40,4 @@ private:
     vector<unsigned int> JA;
     
 };
-<<<<<<< HEAD
-=======
 #endif /* defined(____SparseMat__) */
->>>>>>> Ben's-Branch
