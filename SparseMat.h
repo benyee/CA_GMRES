@@ -12,3 +12,13 @@
 #include <iostream>
 
 #endif /* defined(____SparseMat__) */
+class SparseMat{
+public:
+    SparseMat();
+    ~SparseMat();
+    
+    
+private:
+    
+    
+};
