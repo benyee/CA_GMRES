@@ -110,10 +110,7 @@ SparseVec* SparseMat::smvp(SparseVec *vec){
     
     outIb.push_back(outb.size()); //Add in the number of nonzero elements
     
-    SparseVec *outvec = new SparseVec();
-    outvec->setb(outb);
-    outvec->setIb(outIb);
-    
+    SparseVec *outvec = new SparseVec(outb,outIb);
     return outvec;
 }
 

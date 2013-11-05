@@ -20,6 +20,8 @@ using namespace std;
 class SparseVec{
 public:
     SparseVec();
+    SparseVec(SparseVec* input);
+    SparseVec(vector<double> bIn, vector<unsigned int> IbIn){setb(bIn); setIb(IbIn);}
     ~SparseVec();
     
     vector<double> getb(){return b;}
@@ -32,6 +34,7 @@ public:
     void print_vector();
     
     double dotProduct(SparseVec *vec2);
+    SparseVec* axpy(double a = 1,SparseVec *y = NULL);
     
 private:
     vector <double> b;
