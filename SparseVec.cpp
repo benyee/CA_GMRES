@@ -113,3 +113,19 @@ SparseVec* SparseVec::axpy(double a, SparseVec *y){
     
     return out;
 }
+
+double SparseVec::infNorm(){
+    double max = abs(b[0]);
+    
+    for(unsigned int i=1; i<Ib.back(); i++){
+        double val=abs(b[i]);
+        if(val>max){
+            max = val;
+        }
+    }
+    return max;
+}
+
+double SparseVec::twoNorm(){
+    return sqrt(dotProduct(this));
+}

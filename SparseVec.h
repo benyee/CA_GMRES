@@ -13,6 +13,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 
@@ -35,6 +36,9 @@ public:
     
     double dotProduct(SparseVec *vec2);
     SparseVec* axpy(double a = 1,SparseVec *y = NULL);
+    
+    double infNorm();
+    double twoNorm();
     
 private:
     vector <double> b;
