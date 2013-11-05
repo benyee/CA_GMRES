@@ -26,14 +26,9 @@ public:
     
     void print_matrix();
     
-    
-<<<<<<< HEAD
-};
-=======
 private:
     vector<double> A;
     vector<int> IA;
     vector<unsigned int> JA;
     
 };
->>>>>>> Ben's-Branch
