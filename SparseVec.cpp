@@ -42,3 +42,25 @@ void SparseVec::print_vector(){
     }
     cout<<"]"<<endl;
 }
+
+double SparseVec::dotProduct(SparseVec *vec2){
+    vector<double> b2 = vec2->getb();
+    vector<unsigned int> Ib2 = vec2->getIb();
+    
+    unsigned int i = 0;
+    unsigned int j = 0;
+    
+    double sum = 0;
+    while( i < Ib.back() && j < Ib2.back() ){
+        if(Ib[i] == Ib2[j]){
+            sum += b[i]*b2[j];
+            i++;
+        }else if (Ib[i]< Ib[j]){
+            i++;
+        }else{
+            j++;
+        }
+    }
+    
+    return sum;
+}

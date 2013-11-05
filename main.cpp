@@ -27,6 +27,16 @@ int main ()
     samplevec->readFullVector();
     samplevec->print_vector();
     
+    SparseVec *samplevec2 = new SparseVec();
+    samplevec2->readFullVector("example3.txt",'\t');
+    samplevec2->print_vector();
+    cout<< "Dot product is: "<<samplevec->dotProduct(samplevec2)<<endl;
+    
+    cout<< "A times vector 1 gives..."<<endl;
+    (sample->smvp(samplevec))->print_vector();
+    cout<< "A times vector 2 gives..."<<endl;
+    (sample->smvp(samplevec2 ))->print_vector();
+    
     cout << "Goodbye world!"<<endl;
     return 0;
 }
