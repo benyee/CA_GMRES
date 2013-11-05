@@ -1,4 +1,4 @@
-//
+// test
 //  SparseMat.h
 //  
 //
@@ -33,7 +33,6 @@ public:
     SparseVec* smvp(SparseVec *vec);
     
     void print_matrix();
-    
     
 private:
     vector<double> A;
