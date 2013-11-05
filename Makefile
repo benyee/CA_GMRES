@@ -1,10 +1,10 @@
 a.out: main.o SparseMat.o SparseVec.o
 	g++ -g main.o SparseMat.o SparseVec.o -o a.out
 
-main.o: main.cpp SparseMat.h SparseVec.o
+main.o: main.cpp SparseVec.h SparseMat.h
 	g++ -g -c main.cpp -o main.o
 
-SparseMat.o: SparseMat.cpp SparseMat.h
+SparseMat.o: SparseMat.cpp SparseMat.h SparseVec.h
 	g++ -g -c SparseMat.cpp -o SparseMat.o
 
 SparseVec.o: SparseVec.cpp SparseVec.h

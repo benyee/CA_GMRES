@@ -75,3 +75,42 @@ void SparseMat::print_matrix(){
     }
     cout<<"]"<<endl;
 }
+
+SparseVec* SparseMat::smvp(SparseVec *vec){
+    vector<double> outb;
+    vector<unsigned int> outIb;
+    
+    vector<double> b = vec->getb();
+    vector<unsigned int> Ib = vec->getIb();
+    
+    unsigned int j; //Tracks the index of A vector
+    for(unsigned int row = 0; row<IA.size()-1; row++){
+        unsigned int i = 0; //Tracks the index of b vector
+        j = IA[row];
+        
+        //Dot product:
+        double sum = 0;
+        while( i < Ib.back() && j < IA[row+1]){
+            if(Ib[i] == JA[j]){
+                sum += b[i]*A[j];
+                i++;
+            }else if (Ib[i]< JA[j]){
+                i++;
+            }else{
+                j++;
+            }
+        }
+        
+        //Store if nonzero:
+        if(sum !=0){
+            outb.push_back(sum);
+            outIb.push_back(row);
+        }
+    }
+    
+    outIb.push_back(outb.size()); //Add in the number of nonzero elements
+    
+    SparseVec *outvec = new SparseVec(outb,outIb);
+    return outvec;
+}
+
