@@ -15,9 +15,10 @@
 #include <string>
 #include <vector>
 
+#include "SparseVec.h"
+
 using namespace std;
 
-#endif /* defined(____SparseMat__) */
 class SparseMat{
 public:
     SparseMat();
@@ -29,6 +30,8 @@ public:
     
     void readFullMatrix(string inputfile = "example1.txt",char delim = '\t');
     
+    SparseVec* smvp(SparseVec *vec);
+    
     void print_matrix();
     
     
@@ -38,3 +41,4 @@ private:
     vector<unsigned int> JA;
     
 };
+#endif /* defined(____SparseMat__) */
