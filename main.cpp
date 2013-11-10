@@ -25,6 +25,8 @@ int main ()
     
     vector< vector<double> > fullSample = sample->convertToFullMatrix();
     Utilities::printFullMatrix(fullSample);
+    cout<<"The transpose of this is.."<<endl;
+    Utilities::printFullMatrix(Utilities::transpose(fullSample));
     
     vector<double> samplevec = Utilities::readVectorFile();
     Utilities::printDVector(samplevec);

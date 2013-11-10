@@ -19,12 +19,24 @@ void Utilities::printDVector(vector<double> vec){
     cout<<"]"<<endl;
 }
 
-void Utilities::printFullMatrix(vector< vector<double> > mat){
-    cout<<"---Matrix output begin--"<<endl;
-    for(unsigned int i = 0; i < mat.size();i++){
-        printDVector(mat[i]);
+void Utilities::printFullMatrix(vector< vector<double> > mat, bool rowFirst){
+    if(rowFirst){
+        cout<<"---Matrix output begin--"<<endl;
+        for(unsigned int i = 0; i < mat.size();i++){
+            printDVector(mat[i]);
+        }
+        cout<<"---Matrix output end--"<<endl;
+    }else{
+        cout<<"---Matrix output begin--"<<endl;
+        for(unsigned int i = 0; i < mat[0].size();i++){
+            cout<<"[ "<<endl;
+            for(unsigned int j = 0; j < mat.size();j++){
+                cout<<mat[j][i]<<" ";
+            }
+            cout<<"] "
+        }
+        cout<<"---Matrix output end--"<<endl;
     }
-    cout<<"---Matrix output end--"<<endl;
 }
 
 vector<double> Utilities::readVectorFile(string inputfile,char delim){
@@ -83,12 +95,32 @@ vector<double> Utilities::matvec(vector< vector<double> > A, vector<double> x, b
     return out;
 }
 
+vector< vector<double> > Utilities::transpose(vector< vector<double> > A){
+    vector< vector<double> > At(A);
+    
+    for(unsigned int i = 0; i < A.size(); i++){
+        for(unsigned int j = 0; j < A[0].size(); j++){
+            At[i][j] = A[j][i];
+        }
+    }
+    
+    return At;
+}
+
 double Utilities::dotProd(vector<double> x, vector<double> y){
     double sum = 0;
     for(unsigned int i = 0; i<x.size();i++){
         sum += x[i]*y[i];
     }
     return sum;
+}
+
+vector<double> backSub(vector< vector<double> > A, vector<double> b){
+    vector<double> x(A[0].size());
+    for(unsigned int i = 0; i<A.size();i++){
+        
+    }
+    
 }
 
 pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector< vector<double> > mat){
@@ -100,6 +132,7 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
     pair<vector< vector<double> >, vector< vector<double> > > output (Q,R);
     return output;
 }
+
 
 vector<double> Utilities::leastSquaresNormal(vector< vector<double> > A, vector<double> y){
     vector<double> x;
