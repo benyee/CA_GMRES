@@ -15,8 +15,6 @@
 #include <string>
 #include <vector>
 
-#include "SparseVec.h"
-
 using namespace std;
 
 class SparseMat{
@@ -30,7 +28,6 @@ public:
     
     void readFullMatrix(string inputfile = "example1.txt",char delim = '\t');
     
-    vector<double> smvp(SparseVec *vec);
     vector<double> smvp(vector<double> vec);
     
     void print_matrix();

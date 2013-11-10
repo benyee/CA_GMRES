@@ -15,14 +15,23 @@
 #include <vector>
 #include <cmath>
 
+using namespace std;
 
 class Utilities{
 public:
+    static vector<double> EMPTY_DOUBLE_VECTOR;
     Utilities();
     ~Utilities();
     
-    vector<double> axpy(vector<double> x, vector<double> y = NULL, double a = 1);
-    double dotProd(vector<double> x, vector<double> y);
+    static void printDVector(vector<double> vec);
+    static vector<double> readVectorFile(string inputfile = "example2.txt",char delim = '\t');
+    static vector<double> axpy(vector<double> x, vector<double> y);
+    static vector<double> axpy(vector<double> x, double a);
+    static vector<double> axpy(vector<double> x, double a, vector<double> y);
+    static double dotProd(vector<double> x, vector<double> y);
+    
+    static double twoNorm(vector<double> x);
+    static double infNorm(vector<double> x);
 };
 
 #endif /* defined(____Utilities__) */
