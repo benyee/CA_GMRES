@@ -63,12 +63,50 @@ vector<double> Utilities::axpy(vector<double> x, double a, vector<double> y){
     return out;
 }
 
+vector<double> Utilities::matvec(vector< vector<double> > A, vector<double> x, bool rowFirst){
+    vector<double> out;
+    if(rowFirst){
+        unsigned int minSize = A.size();
+        for(unsigned int i = 0;i<minSize;i++){
+            out.push_back(dotProd(A[i],x));
+        }
+        return out;
+    }
+    unsigned int minSize = A[0].size();
+    for(unsigned int i = 0;i<minSize;i++){
+        out.push_back(0);
+    }
+    minSize = min(A.size(),x.size());
+    for(unsigned int i = 0; i<minSize;i++){
+        out = axpy(A[i],x[i],out);
+    }
+    return out;
+}
+
 double Utilities::dotProd(vector<double> x, vector<double> y){
     double sum = 0;
     for(unsigned int i = 0; i<x.size();i++){
         sum += x[i]*y[i];
     }
     return sum;
+}
+
+pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector< vector<double> > mat){
+    vector< vector<double> > Q;
+    vector< vector<double> > R;
+    
+    //Stuff goes here
+    
+    pair<vector< vector<double> >, vector< vector<double> > > output (Q,R);
+    return output;
+}
+
+vector<double> Utilities::leastSquaresNormal(vector< vector<double> > A, vector<double> y){
+    vector<double> x;
+    
+    //stuff goes here
+    
+    return x;
 }
 
 double Utilities::infNorm(vector<double> x){

@@ -35,6 +35,8 @@ int main ()
     
     cout<< "A times vector 1 gives..."<<endl;
     Utilities::printDVector(sample->smvp(samplevec));
+    cout<<"A times vector 1 with a full matvec gives..."<<endl;
+    Utilities::printDVector(Utilities::matvec(fullSample,samplevec));
     cout<< "A times vector 2 gives..."<<endl;
     Utilities::printDVector(sample->smvp(samplevec2));
     
