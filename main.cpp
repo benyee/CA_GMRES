@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-#include "SparseVec.h"
 #include "SparseMat.h"
+#include "Utilities.h"
 
 using namespace std;
 
@@ -23,29 +23,30 @@ int main ()
     sample->readFullMatrix();
     sample->print_matrix();
     
-    SparseVec *samplevec = new SparseVec();
-    samplevec->readFullVector();
-    samplevec->print_vector();
+    vector< vector<double> > fullSample = sample->convertToFullMatrix();
+    Utilities::printFullMatrix(fullSample);
     
-    SparseVec *samplevec2 = new SparseVec();
-    samplevec2->readFullVector("example3.txt",'\t');
-    samplevec2->print_vector();
-    cout<< "Dot product is: "<<samplevec->dotProduct(samplevec2)<<endl;
+    vector<double> samplevec = Utilities::readVectorFile();
+    Utilities::printDVector(samplevec);
+    
+    vector<double> samplevec2 = Utilities::readVectorFile("example3.txt");
+    Utilities::printDVector(samplevec2);
+    cout<< "Dot product is: "<<Utilities::dotProd(samplevec, samplevec2)<<endl;
     
     cout<< "A times vector 1 gives..."<<endl;
-    (sample->smvp(samplevec))->print_vector();
+    Utilities::printDVector(sample->smvp(samplevec));
     cout<< "A times vector 2 gives..."<<endl;
-    (sample->smvp(samplevec2 ))->print_vector();
+    Utilities::printDVector(sample->smvp(samplevec2));
     
     cout<<"5*v1 is..."<<endl;
-    (samplevec->axpy(5.0))->print_vector();
+    Utilities::printDVector(Utilities::axpy(samplevec,5.0));
     cout<<"v1+v2 is..."<<endl;
-    (samplevec->axpy(1,samplevec2))->print_vector();
+    Utilities::printDVector(Utilities::axpy(samplevec,samplevec2));
     cout<<"5*v1+v2 is..."<<endl;
-    (samplevec->axpy(5.0,samplevec2))->print_vector();
+    Utilities::printDVector(Utilities::axpy(samplevec,5,samplevec2));
     
-    cout<<"Inf Norm: "<<samplevec->infNorm()<<endl;
-    cout<<"Two Norm: "<<samplevec->twoNorm()<<endl;
+    cout<<"Inf Norm: "<<Utilities::infNorm(samplevec)<<endl;
+    cout<<"Two Norm: "<<Utilities::twoNorm(samplevec)<<endl;
     
     cout << "Goodbye world!"<<endl;
     return 0;

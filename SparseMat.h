@@ -15,8 +15,6 @@
 #include <string>
 #include <vector>
 
-#include "SparseVec.h"
-
 using namespace std;
 
 class SparseMat{
@@ -30,7 +28,13 @@ public:
     
     void readFullMatrix(string inputfile = "example1.txt",char delim = '\t');
     
-    SparseVec* smvp(SparseVec *vec);
+    
+    vector< vector<double> > convertToFullMatrix(bool rowFirst = true){return convertToFullMatrix(IA.size()-1,IA.size()-1,rowFirst);} //Default numRows and numCols to the implied num. of rows given by the size of IA
+    vector< vector<double> > convertToFullMatrix(unsigned int numRows, unsigned int numCols,bool rowFirst = true);
+    //rowFirst determines whether the output vector has rows or columns as its outer structure
+    //rowFirst = true means that [i][j] refers to the i-th row and j-th column
+    
+    vector<double> smvp(vector<double> vec);
     
     void print_matrix();
     
