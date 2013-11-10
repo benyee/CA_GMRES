@@ -19,9 +19,9 @@ void Utilities::printDVector(vector<double> vec){
     cout<<"]"<<endl;
 }
 
-static void printFullMatrix(vector< vector<double> > mat){
+void Utilities::printFullMatrix(vector< vector<double> > mat){
     cout<<"---Matrix output begin--"<<endl;
-    for(unsigned int i = 0; i < mat.size()){
+    for(unsigned int i = 0; i < mat.size();i++){
         printDVector(mat[i]);
     }
     cout<<"---Matrix output end--"<<endl;

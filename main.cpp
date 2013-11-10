@@ -23,6 +23,9 @@ int main ()
     sample->readFullMatrix();
     sample->print_matrix();
     
+    vector< vector<double> > fullSample = sample->convertToFullMatrix();
+    Utilities::printFullMatrix(fullSample);
+    
     vector<double> samplevec = Utilities::readVectorFile();
     Utilities::printDVector(samplevec);
     
