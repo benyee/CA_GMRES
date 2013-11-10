@@ -23,7 +23,10 @@ public:
     Utilities();
     ~Utilities();
     
-    static void printDVector(vector<double> vec);
+    static void printDVector(vector<double> vec); //Prints out a vector of doubles
+    static void printFullMatrix(vector< vector<double> > mat); //Prints out a vector of double vectors
+    
+    
     static vector<double> readVectorFile(string inputfile = "example2.txt",char delim = '\t');
     static vector<double> axpy(vector<double> x, vector<double> y);
     static vector<double> axpy(vector<double> x, double a);

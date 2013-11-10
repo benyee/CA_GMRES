@@ -19,6 +19,14 @@ void Utilities::printDVector(vector<double> vec){
     cout<<"]"<<endl;
 }
 
+static void printFullMatrix(vector< vector<double> > mat){
+    cout<<"---Matrix output begin--"<<endl;
+    for(unsigned int i = 0; i < mat.size()){
+        printDVector(mat[i]);
+    }
+    cout<<"---Matrix output end--"<<endl;
+}
+
 vector<double> Utilities::readVectorFile(string inputfile,char delim){
     ifstream inputFile;
     inputFile.open(inputfile.c_str());
