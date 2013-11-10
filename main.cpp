@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 
-#include "SparseVec.h"
 #include "SparseMat.h"
 
 using namespace std;
