@@ -76,6 +76,45 @@ void SparseMat::print_matrix(){
     cout<<"]"<<endl;
 }
 
+vector< vector<double> > SparseMat::convertToFullMatrix(unsigned int numRows, unsigned int numCols, bool rowFirst){
+    
+    vector< vector<double> > out;
+    
+    if(rowFirst){
+        unsigned int A_counter = 0;
+        for(unsigned int i = 0; i < numRows; i++){
+            vector<double> emptyrow;
+            out.push_back(emptyrow);
+            for(unsigned int j = 0; j< numCols;j++){
+                if(j == IA[A_counter] && A_counter < JA[i+1]){
+                    out[i].push_back(A[A_counter]);
+                    A_counter++;
+                }else{
+                    out[i].push_back(0);
+                }
+            }
+        }
+    
+        return out;
+    }
+    
+    for(unsigned int j = 0; j< numCols;j++){
+        vector<double> emptyrow;
+        out.push_back(emptyrow);
+        for(unsigned int i = 0; i < numRows;i++){
+            out.push_back(0);
+        }
+    }
+    unsigned int A_counter;
+    for(unsigned int i = 0; i < numRows; i++){
+        A_counter = IA[i];
+        while(A_counter < IA[i+1]){
+            out[JA[i+1]][i] = A[A_counter];
+            A_counter++;
+        }
+    }
+    return out;
+}
 /*vector<double> SparseMat::smvp(SparseVec *vec){
     vector<double> outb;
     vector<unsigned int> outIb;
