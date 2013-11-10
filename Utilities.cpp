@@ -169,6 +169,35 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
 }
 
 
+vector< vector<double> > Utilities::subMatrix(vector< vector<double> > A, pair<unsigned int,unsigned int> ind1, pair<unsigned int,unsigned int> ind2){
+    vector< vector<double> > Aout;
+    
+    unsigned int i = ind1.first;
+    while(i<A.size() && i < ind1.second){
+        unsigned int j = ind2.first;
+        vector<double> temp;
+        while(j<A.size() && j < ind2.second){
+            temp.push_back(A[i][j]);
+            j++;
+        }
+        while(j<ind2.second){
+            temp.push_back(0);
+            j++;
+        }
+        Aout.push_back(temp);
+        i++;
+    }
+    while(i<ind1.second){
+        vector<double> temp;
+        for(unsigned int j = ind1.first; j<ind2.second; j++){
+            temp.push_back(0);
+        }
+        Aout.push_back(temp);
+        i++;
+    }
+    return Aout;
+}
+
 vector<double> Utilities::leastSquaresNormal(vector< vector<double> > A, vector<double> y){
     vector<double> x;
     

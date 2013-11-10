@@ -27,6 +27,8 @@ int main ()
     Utilities::printFullMatrix(fullSample);
     cout<<"The transpose of this is.."<<endl;
     Utilities::printFullMatrix(Utilities::transpose(fullSample));
+    cout<<"A[1:2,2:3] ="<<endl;
+    Utilities::printFullMatrix(Utilities::subMatrix(fullSample,make_pair(1,3),make_pair(2,4)));
     
     
     vector<double> samplevec = Utilities::readVectorFile();
