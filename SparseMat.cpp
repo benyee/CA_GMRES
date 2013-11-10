@@ -76,7 +76,7 @@ void SparseMat::print_matrix(){
     cout<<"]"<<endl;
 }
 
-SparseVec* SparseMat::smvp(SparseVec *vec){
+/*vector<double> SparseMat::smvp(SparseVec *vec){
     vector<double> outb;
     vector<unsigned int> outIb;
     
@@ -112,5 +112,23 @@ SparseVec* SparseMat::smvp(SparseVec *vec){
     
     SparseVec *outvec = new SparseVec(outb,outIb);
     return outvec;
+}*/
+
+vector<double> SparseMat::smvp(vector<double> vec){
+    vector<double> outb;
+    
+    unsigned int j; //Tracks the index of A vector
+    for(unsigned int row = 0; row<IA.size()-1; row++){
+        j = IA[row];
+        double sum = 0;
+        while(j < IA[row+1]){
+            sum += A[j]*vec[JA[j]];
+            j++;
+        }
+        outb.push_back(sum);
+    }
+    
+    return outb;
 }
+
 

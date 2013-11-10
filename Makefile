@@ -1,14 +1,14 @@
-a.out: main.o SparseMat.o SparseVec.o
-	g++ -g main.o SparseMat.o SparseVec.o -o a.out
+a.out: main.o SparseMat.o Utilities.o
+	g++ -g main.o SparseMat.o Utilities.o -o a.out
 
-main.o: main.cpp SparseVec.h SparseMat.h
+main.o: main.cpp SparseMat.h Utilities.h
 	g++ -g -c main.cpp -o main.o
 
-SparseMat.o: SparseMat.cpp SparseMat.h SparseVec.h
+SparseMat.o: SparseMat.cpp SparseMat.h
 	g++ -g -c SparseMat.cpp -o SparseMat.o
 
-SparseVec.o: SparseVec.cpp SparseVec.h
-	g++ -g -c SparseVec.cpp -o SparseVec.o
+Utilities.o: Utilities.cpp Utilities.h
+	g++ -g -c Utilities.cpp -o Utilities.o
 
 clean:
-	rm -rf main.o SparseMat.o SparseVec.o SparseVec.h.gch SparseMat.h.gch a.out
+	rm -rf main.o SparseMat.o Utilities.o Utilities.h.gch SparseMat.h.gch a.out
