@@ -28,7 +28,7 @@ void Utilities::printFullMatrix(vector< vector<double> > mat, bool rowFirst){
         cout<<"---Matrix output end--"<<endl;
     }else{
         cout<<"---Matrix output begin--"<<endl;
-        for(unsigned int i = 0; i < mat[0].size();i++){
+        for(unsigned int i = 0; i < mat.back().size();i++){
             cout<<"[ ";
             for(unsigned int j = 0; j < mat.size();j++){
                 cout<<mat[j][i]<<" ";
@@ -84,7 +84,7 @@ vector<double> Utilities::matvec(vector< vector<double> > A, vector<double> x, b
         }
         return out;
     }
-    unsigned int minSize = A[0].size();
+    unsigned int minSize = A.back().size();
     for(unsigned int i = 0;i<minSize;i++){
         out.push_back(0);
     }
@@ -99,7 +99,7 @@ vector< vector<double> > Utilities::transpose(vector< vector<double> > A){
     vector< vector<double> > At(A);
     
     for(unsigned int i = 0; i < A.size(); i++){
-        for(unsigned int j = 0; j < A[0].size(); j++){
+        for(unsigned int j = 0; j < A[i].size(); j++){
             At[i][j] = A[j][i];
         }
     }
@@ -144,7 +144,7 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
     
     //Initialize R:
     unsigned int numrows = mat.size();
-    unsigned int numcols = mat[0].size();
+    unsigned int numcols = mat.back().size();
     for(unsigned int i = 0; i<numcols;i++){
         vector<double> temp;
         for(unsigned int j = 0; j<numcols; j++){
@@ -168,6 +168,35 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
     return output;
 }
 
+
+vector< vector<double> > Utilities::subMatrix(vector< vector<double> > A, pair<unsigned int,unsigned int> ind1, pair<unsigned int,unsigned int> ind2){
+    vector< vector<double> > Aout;
+    
+    unsigned int i = ind1.first;
+    while(i<A.size() && i < ind1.second){
+        unsigned int j = ind2.first;
+        vector<double> temp;
+        while(j<A.size() && j < ind2.second){
+            temp.push_back(A[i][j]);
+            j++;
+        }
+        while(j<ind2.second){
+            temp.push_back(0);
+            j++;
+        }
+        Aout.push_back(temp);
+        i++;
+    }
+    while(i<ind1.second){
+        vector<double> temp;
+        for(unsigned int j = ind1.first; j<ind2.second; j++){
+            temp.push_back(0);
+        }
+        Aout.push_back(temp);
+        i++;
+    }
+    return Aout;
+}
 
 vector<double> Utilities::leastSquaresNormal(vector< vector<double> > A, vector<double> y){
     vector<double> x;

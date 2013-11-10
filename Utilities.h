@@ -34,6 +34,9 @@ public:
     static vector< vector<double> > transpose(vector< vector<double> > A);
     static double dotProd(vector<double> x, vector<double> y);
     
+    //Get a piece of a matrix:
+    static vector< vector<double> > subMatrix(vector< vector<double> > A, pair<unsigned int,unsigned int> ind1, pair<unsigned int,unsigned int> ind2);
+    
     //Back-substitution for solving upper triangular matrix:
     static vector<double> backSub(vector< vector<double> > A, vector<double> b, bool rowFirst = true);
     
