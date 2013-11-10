@@ -115,17 +115,27 @@ double Utilities::dotProd(vector<double> x, vector<double> y){
     return sum;
 }
 
-vector<double> backSub(vector< vector<double> > A, vector<double> b){
+vector<double> Utilities::backSub(vector< vector<double> > A, vector<double> b,bool rowFirst){
+    if(!rowFirst){
+        A = transpose(A);
+    }
+    
     vector<double> x(b);
-    for(unsigned int i = A.size()-1; i>=0;i--){
+    for(int i = A.size()-1; i>=0;i--){
         for(unsigned int j = i+1; j < A.size(); j++){
             x[i] = x[i] - A[i][j]*x[j];
         }
         x[i] = x[i]/A[i][i];
     }
+    
+    if(!rowFirst){
+        A = transpose(A);
+    }
+    
     return x;
 }
 
+//NOTE THAT THIS RETURNS Q-transpose, NOT Q
 pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector< vector<double> > mat){
     vector< vector<double> > At = transpose(mat);
     
@@ -153,7 +163,7 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
     }
     //Stuff goes here
     
-    Q = transpose(Q);
+    //NOTE THAT THIS RETURNS Q-transpose, NOT Q
     pair<vector< vector<double> >, vector< vector<double> > > output (Q,R);
     return output;
 }
@@ -162,9 +172,17 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
 vector<double> Utilities::leastSquaresNormal(vector< vector<double> > A, vector<double> y){
     vector<double> x;
     
-    //stuff goes here
+    //Stuff goes here
     
     return x;
+}
+
+vector<double> Utilities::leastSquaresQR(vector< vector<double> > A, vector<double> y){
+    pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(A);
+    vector<double> x = matvec(QR.first,y);
+    x = backSub(QR.second,x);
+    return x;
+
 }
 
 double Utilities::infNorm(vector<double> x){

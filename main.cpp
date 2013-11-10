@@ -28,6 +28,7 @@ int main ()
     cout<<"The transpose of this is.."<<endl;
     Utilities::printFullMatrix(Utilities::transpose(fullSample));
     
+    
     vector<double> samplevec = Utilities::readVectorFile();
     Utilities::printDVector(samplevec);
     
@@ -41,6 +42,9 @@ int main ()
     Utilities::printDVector(Utilities::matvec(fullSample,samplevec));
     cout<< "A times vector 2 gives..."<<endl;
     Utilities::printDVector(sample->smvp(samplevec2));
+    
+    cout<<"Ax=v1, x =  "<<endl;
+    Utilities::printDVector(Utilities::leastSquaresQR(fullSample,samplevec));
     
     cout<<"5*v1 is..."<<endl;
     Utilities::printDVector(Utilities::axpy(samplevec,5.0));

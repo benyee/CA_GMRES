@@ -38,10 +38,13 @@ public:
     static vector<double> backSub(vector< vector<double> > A, vector<double> b, bool rowFirst = true);
     
     //mat should be given as mat[row][col]
+    //NOTE THAT THIS RETURNS Q-transpose, NOT Q
     static pair<vector< vector<double> 	>, vector< vector<double> > > mgs(vector< vector<double> > mat);
     
     //Use the normal equations to solve Least Squares:  (Large condition #, may result in inaccuracy)
     static vector<double> leastSquaresNormal(vector< vector<double> > A, vector<double> y);
+    //Use a QR (mgs) factorization to solve least squares: (not optimal, but more stable)
+    static vector<double> leastSquaresQR(vector< vector<double> > A, vector<double> y);
     
     static double twoNorm(vector<double> x);
     static double infNorm(vector<double> x);
