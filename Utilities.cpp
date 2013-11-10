@@ -29,11 +29,11 @@ void Utilities::printFullMatrix(vector< vector<double> > mat, bool rowFirst){
     }else{
         cout<<"---Matrix output begin--"<<endl;
         for(unsigned int i = 0; i < mat[0].size();i++){
-            cout<<"[ "<<endl;
+            cout<<"[ ";
             for(unsigned int j = 0; j < mat.size();j++){
                 cout<<mat[j][i]<<" ";
             }
-            cout<<"] "
+            cout<<"] "<<endl;
         }
         cout<<"---Matrix output end--"<<endl;
     }
@@ -116,19 +116,44 @@ double Utilities::dotProd(vector<double> x, vector<double> y){
 }
 
 vector<double> backSub(vector< vector<double> > A, vector<double> b){
-    vector<double> x(A[0].size());
-    for(unsigned int i = 0; i<A.size();i++){
-        
+    vector<double> x(b);
+    for(unsigned int i = A.size()-1; i>=0;i--){
+        for(unsigned int j = i+1; j < A.size(); j++){
+            x[i] = x[i] - A[i][j]*x[j];
+        }
+        x[i] = x[i]/A[i][i];
     }
-    
+    return x;
 }
 
 pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector< vector<double> > mat){
-    vector< vector<double> > Q;
+    vector< vector<double> > At = transpose(mat);
+    
+    vector< vector<double> > Q(At);
     vector< vector<double> > R;
     
+    //Initialize R:
+    unsigned int numrows = mat.size();
+    unsigned int numcols = mat[0].size();
+    for(unsigned int i = 0; i<numcols;i++){
+        vector<double> temp;
+        for(unsigned int j = 0; j<numcols; j++){
+            temp.push_back(0);
+        }
+        R.push_back(temp);
+    }
+    
+    for(unsigned int i = 0; i<numcols;i++){
+        R[i][i] = twoNorm(At[i]);
+        Q[i] = axpy(At[i],1.0/R[i][i]);
+        for(unsigned int j = i+1; j<numcols;j++){
+            R[i][j] = dotProd(Q[i],At[j]);
+            At[j] = axpy(axpy(Q[i],R[i][j]),-1,At[j]);
+        }
+    }
     //Stuff goes here
     
+    Q = transpose(Q);
     pair<vector< vector<double> >, vector< vector<double> > > output (Q,R);
     return output;
 }
