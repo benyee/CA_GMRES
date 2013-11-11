@@ -25,6 +25,11 @@ int main ()
     
     vector< vector<double> > fullSample = sample->convertToFullMatrix();
     Utilities::printFullMatrix(fullSample);
+    cout<<"The transpose of this is.."<<endl;
+    Utilities::printFullMatrix(Utilities::transpose(fullSample));
+    cout<<"A[1:2,2:3] ="<<endl;
+    Utilities::printFullMatrix(Utilities::subMatrix(fullSample,make_pair(1,3),make_pair(2,4)));
+    
     
     vector<double> samplevec = Utilities::readVectorFile();
     Utilities::printDVector(samplevec);
@@ -35,8 +40,13 @@ int main ()
     
     cout<< "A times vector 1 gives..."<<endl;
     Utilities::printDVector(sample->smvp(samplevec));
+    cout<<"A times vector 1 with a full matvec gives..."<<endl;
+    Utilities::printDVector(Utilities::matvec(fullSample,samplevec));
     cout<< "A times vector 2 gives..."<<endl;
     Utilities::printDVector(sample->smvp(samplevec2));
+    
+    cout<<"Ax=v1, x =  "<<endl;
+    Utilities::printDVector(Utilities::leastSquaresQR(fullSample,samplevec));
     
     cout<<"5*v1 is..."<<endl;
     Utilities::printDVector(Utilities::axpy(samplevec,5.0));
