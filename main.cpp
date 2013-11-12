@@ -58,6 +58,18 @@ int main ()
     cout<<"Inf Norm: "<<Utilities::infNorm(samplevec)<<endl;
     cout<<"Two Norm: "<<Utilities::twoNorm(samplevec)<<endl;
     
+    pair<vector< vector<double> >, vector< vector<double> > >  QR = Utilities::mgs(fullSample);
+    vector < vector < double > > R1 = QR.second;
+    
+    vector < vector <double> > R2 = Utilities::tsQR(fullSample, 2);
+    
+    cout << endl <<"MGS" << endl;
+    Utilities::printFullMatrix(R1);
+    cout << endl <<"TSQR"<<endl;
+    Utilities::printFullMatrix(R2);
+
+
+    
     cout << "Goodbye world!"<<endl;
     return 0;
 }

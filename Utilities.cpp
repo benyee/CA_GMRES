@@ -208,7 +208,7 @@ vector< vector<double> > Utilities::stackMat(vector<vector<double> > A, vector<v
     unsigned int minSize = min(out.size(),B.size());
     
     for(unsigned int i = 0; i<minSize;i++){
-        out[i].push_back(B[i]);
+        out[i].insert(out[i].end(),B[i].begin(),B[i].end());
     }
     
     if(rowFirst){
@@ -243,23 +243,23 @@ vector < vector <double> > Utilities::tsQR(vector < vector < double> > A,unsigne
     
     vector < vector <double> > Ai = subMatrix(A, make_pair(0,blksiz), make_pair(0,numcol));
     pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
-    R = QR.second;
+    vector < vector <double> > R = QR.second;
     
     for(unsigned int i=2;i<=numblk;i++){
-        vector < vector <double> > Ai = subMatrix(A, make_pair((i-1)*blksiz,i*blksiz), make_pair(0,numcol));
+        Ai = subMatrix(A, make_pair((i-1)*blksiz,i*blksiz), make_pair(0,numcol));
         Ai = stackMat(R,Ai);
         pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
         R = QR.second;
     }
     
-    if numrow%blksiz != 0{
-        vector < vector <double> > Ai = subMatrix(A, make_pair((numblk-1)*blksiz,numrow), make_pair(0,numcol));
+    if (numrow % blksiz != 0){
+        Ai = subMatrix(A, make_pair((numblk-1)*blksiz,numrow), make_pair(0,numcol));
         Ai = stackMat(R,Ai);
         pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
         R = QR.second;
     }
         
-
+    return R;
 }
 
 
