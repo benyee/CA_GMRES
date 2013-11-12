@@ -198,6 +198,28 @@ vector< vector<double> > Utilities::subMatrix(vector< vector<double> > A, pair<u
     return Aout;
 }
 
+vector< vector<double> > Utilities::stackMat(vector<vector<double> > A, vector<vector<double> > B, bool rowFirst){
+    if(rowFirst){
+        A = transpose(A);
+        B = transpose(B);
+    }
+    vector< vector<double> > out(A);
+    
+    unsigned int minSize = min(out.size(),B.size());
+    
+    for(unsigned int i = 0; i<minSize;i++){
+        out[i].push_back(B[i]);
+    }
+    
+    if(rowFirst){
+        A = transpose(A);
+        B = transpose(B);
+        out = transpose(out);
+    }
+    
+    return out;
+}
+
 vector<double> Utilities::leastSquaresNormal(vector< vector<double> > A, vector<double> y){
     vector<double> x;
     

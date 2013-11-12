@@ -36,6 +36,8 @@ public:
     
     //Get a piece of a matrix:
     static vector< vector<double> > subMatrix(vector< vector<double> > A, pair<unsigned int,unsigned int> ind1, pair<unsigned int,unsigned int> ind2);
+    //Stack matrices vertically:
+    static vector< vector<double> > stackMat(vector<vector<double> > A, vector<vector<double> > B, bool rowFirst = true);
     
     //Back-substitution for solving upper triangular matrix:
     static vector<double> backSub(vector< vector<double> > A, vector<double> b, bool rowFirst = true);
