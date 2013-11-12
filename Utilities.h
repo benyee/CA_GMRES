@@ -50,6 +50,8 @@ public:
     static vector<double> leastSquaresNormal(vector< vector<double> > A, vector<double> y);
     //Use a QR (mgs) factorization to solve least squares: (not optimal, but more stable)
     static vector<double> leastSquaresQR(vector< vector<double> > A, vector<double> y);
+    //Use tall-skinny QR to factorize a matrix
+    static vector < vector <double> > tsQR(vector < vector < double> > A,double blksiz);
     
     static double twoNorm(vector<double> x);
     static double infNorm(vector<double> x);
