@@ -214,6 +214,33 @@ vector<double> Utilities::leastSquaresQR(vector< vector<double> > A, vector<doub
 
 }
 
+vector < vector <double> > Utilities::tsQR(vector < vector < double> > A,unsigned int blksiz){
+    unsigned int numrow = A[0].size();
+    unsigned int numcol = A.size();
+    unsigned int numblk = numrow/blksiz;
+    
+    vector < vector <double> > Ai = subMatrix(A, make_pair(0,blksiz), make_pair(0,numcol));
+    pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
+    R = QR.second;
+    
+    for(unsigned int i=2;i<=numblk;i++){
+        vector < vector <double> > Ai = subMatrix(A, make_pair((i-1)*blksiz,i*blksiz), make_pair(0,numcol));
+        Ai = stackMat(R,Ai);
+        pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
+        R = QR.second;
+    }
+    
+    if numrow%blksiz != 0{
+        vector < vector <double> > Ai = subMatrix(A, make_pair((numblk-1)*blksiz,numrow), make_pair(0,numcol));
+        Ai = stackMat(R,Ai);
+        pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
+        R = QR.second;
+    }
+        
+
+}
+
+
 double Utilities::infNorm(vector<double> x){
     double max = abs(x[0]);
     
