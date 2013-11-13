@@ -39,6 +39,25 @@ void Utilities::printFullMatrix(vector< vector<double> > mat, bool rowFirst){
     }
 }
 
+vector<double> Utilities::zeros(unsigned int rows){
+    vector<double> out;
+    for(unsigned int i = 0; i<rows; i++){
+        out.push_back(0);
+    }
+    return out;
+}
+vector < vector<double> > Utilities::zeros(unsigned int rows, unsigned int cols){
+    vector< vector<double> > out;
+    for(unsigned int i = 0; i<rows; i++){
+        vector<double> temp;
+        for(unsigned int j = 0; j<cols;j++){
+            temp.push_back(0);
+        }
+        out.push_back(temp);
+    }
+    return out;
+}
+
 vector<double> Utilities::readVectorFile(string inputfile,char delim){
     ifstream inputFile;
     inputFile.open(inputfile.c_str());
@@ -279,6 +298,22 @@ vector < vector <double> > Utilities::tsQR(vector < vector < double> > A,unsigne
     }
         
     return R;
+}
+
+//Classical GMRES algorithm:
+struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, double tol, unsigned int max_it){
+    return classicalGMRES(A,b,zeros(b.size()),tol,max_it);
+}
+
+struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, vector<double> x_0, double tol, unsigned int max_it){
+    GMRES_sol sol;
+    
+    sol.converged = true;
+    sol.num_its = 0;
+    sol.x = x_0;
+    vector<double> res;
+    sol.res =res;
+    return sol;
 }
 
 

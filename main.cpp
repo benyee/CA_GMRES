@@ -69,12 +69,7 @@ int main ()
     cout << endl <<"TSQR"<<endl;
     Utilities::printFullMatrix(R2);
 
-    GMRES_sol sol;
-    sol.converged = true;
-    sol.num_its = 5;
-    sol.res = samplevec;
-    sol.x = samplevec2;
-    
+    GMRES_sol sol = Utilities::classicalGMRES(sample,samplevec);
     sol.print();
     
     cout << "Goodbye world!"<<endl;
