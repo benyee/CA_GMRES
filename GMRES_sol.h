@@ -10,7 +10,6 @@
 #define _GMRES_sol_h
 
 #include <vector>
-#include "Utilities.h"
 
 using namespace std;
 
