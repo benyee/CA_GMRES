@@ -56,7 +56,13 @@ vector < vector<double> > Utilities::zeros(unsigned int rows, unsigned int cols)
 
 vector< vector<double> > Utilities::expandMat(vector< vector<double> > mat, unsigned int rows, unsigned int cols){
     unsigned int oldNumRows = mat.size();
+    if(oldNumRows == 0){
+        return zeros(rows,cols);
+    }
     unsigned int oldNumCols = mat[0].size();
+    if(oldNumCols == 0){
+        return zeros(rows,cols);
+    }
     for(unsigned int i = oldNumRows; i<rows; i++){
         mat.push_back(zeros(cols));
     }
