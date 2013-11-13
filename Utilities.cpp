@@ -163,7 +163,12 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
     
     for(unsigned int i = 0; i<numcols;i++){
         R[i][i] = twoNorm(At[i]);
-        Q[i] = axpy(At[i],1.0/R[i][i]);
+        if (R[i][i]==0){
+            Q[i] = At[i];
+        }
+        else{
+            Q[i] = axpy(At[i],1.0/R[i][i]);
+        }
         for(unsigned int j = i+1; j<numcols;j++){
             R[i][j] = dotProd(Q[i],At[j]);
             At[j] = axpy(axpy(Q[i],R[i][j]),-1,At[j]);
