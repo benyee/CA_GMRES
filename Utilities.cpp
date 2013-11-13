@@ -96,10 +96,20 @@ vector<double> Utilities::matvec(vector< vector<double> > A, vector<double> x, b
 }
 
 vector< vector<double> > Utilities::transpose(vector< vector<double> > A){
-    vector< vector<double> > At(A);
+    vector< vector<double> > At;
+    unsigned int numcols = A[0].size();
+    unsigned int numrows = A.size();
     
-    for(unsigned int i = 0; i < A.size(); i++){
-        for(unsigned int j = 0; j < A[i].size(); j++){
+    for(unsigned int i = 0; i < numcols; i++){
+        vector<double>  temp;
+        for(unsigned int j = 0; j < numrows; j++){
+            temp.push_back(0);
+        }
+        At.push_back(temp);
+    }
+    
+    for(unsigned int i = 0; i < numcols; i++){
+        for(unsigned int j = 0; j < numrows; j++){
             At[i][j] = A[j][i];
         }
     }
@@ -137,9 +147,7 @@ vector<double> Utilities::backSub(vector< vector<double> > A, vector<double> b,b
 
 //NOTE THAT THIS RETURNS Q-transpose, NOT Q
 pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector< vector<double> > mat){
-    vector< vector<double> > At = transpose(mat);
-    
-    vector< vector<double> > Q(At);
+    vector< vector<double> > At = transpose(mat);    vector< vector<double> > Q(At);
     vector< vector<double> > R;
     
     //Initialize R:
@@ -245,13 +253,19 @@ vector < vector <double> > Utilities::tsQR(vector < vector < double> > A,unsigne
     pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
     vector < vector <double> > R = QR.second;
     
+    cout<<"iteration 1"<<endl;
+    printFullMatrix(R);
+    
     for(unsigned int i=2;i<=numblk;i++){
         Ai = subMatrix(A, make_pair((i-1)*blksiz,i*blksiz), make_pair(0,numcol));
+
         Ai = stackMat(R,Ai);
+
         pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
         R = QR.second;
+        cout<<"iteration "<<i<<endl;
+        printFullMatrix(R);
     }
-    
     if (numrow % blksiz != 0){
         Ai = subMatrix(A, make_pair((numblk-1)*blksiz,numrow), make_pair(0,numcol));
         Ai = stackMat(R,Ai);
