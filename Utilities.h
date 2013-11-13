@@ -32,6 +32,8 @@ public:
     static vector<double> zeros(unsigned int rows);
     //Make a matrix of zeros
     static vector< vector<double> > zeros(unsigned int rows, unsigned int cols);
+    //Expand a vector vec until mat is of size rows
+    static vector<double>  expandVec(vector<double> vec, unsigned int rows);
     //Expand a RECTANGULAR matrix mat until mat is of size rows,cols
     static vector< vector<double> > expandMat(vector< vector<double> > mat, unsigned int rows, unsigned int cols);
     
@@ -65,7 +67,7 @@ public:
     
     //Classical GMRES algorithm:
     static struct GMRES_sol classicalGMRES(SparseMat* A, vector<double> b, double tol = 1.0E-6, unsigned int max_it = 10000);
-    static struct GMRES_sol classicalGMRES(SparseMat* A, vector<double> b, vector<double> x_0, double tol = 1.0E-6, unsigned int max_it = 10000);
+    static struct GMRES_sol classicalGMRES(SparseMat* A, vector<double> b, vector<double> x, double tol = 1.0E-6, unsigned int max_it = 10000);
     
     static double twoNorm(vector<double> x);
     static double infNorm(vector<double> x);
