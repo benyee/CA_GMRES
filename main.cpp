@@ -61,10 +61,11 @@ int main ()
     pair<vector< vector<double> >, vector< vector<double> > >  QR = Utilities::mgs(fullSample);
     vector < vector < double > > R1 = QR.second;
     
-    vector < vector <double> > R2 = Utilities::tsQR(fullSample, 2);
-    
     cout << endl <<"MGS" << endl;
     Utilities::printFullMatrix(R1);
+    
+    vector < vector <double> > R2 = Utilities::tsQR(fullSample, 2);
+    
     cout << endl <<"TSQR"<<endl;
     Utilities::printFullMatrix(R2);
 
