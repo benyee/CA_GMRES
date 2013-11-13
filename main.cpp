@@ -71,6 +71,8 @@ int main ()
 
     GMRES_sol sol = Utilities::classicalGMRES(sample,samplevec);
     sol.print();
+
+    Utilities::printFullMatrix(Utilities::expandMat(fullSample,10,10));
     
     cout << "Goodbye world!"<<endl;
     return 0;

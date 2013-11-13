@@ -30,7 +30,10 @@ public:
     
     //Make a vector of zeros
     static vector<double> zeros(unsigned int rows);
-    static vector < vector<double> > zeros(unsigned int rows, unsigned int cols);
+    //Make a matrix of zeros
+    static vector< vector<double> > zeros(unsigned int rows, unsigned int cols);
+    //Expand a RECTANGULAR matrix mat until mat is of size rows,cols
+    static vector< vector<double> > expandMat(vector< vector<double> > mat, unsigned int rows, unsigned int cols);
     
     static vector<double> readVectorFile(string inputfile = "example2.txt",char delim = '\t');
     static vector<double> axpy(vector<double> x, vector<double> y);

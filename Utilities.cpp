@@ -49,13 +49,23 @@ vector<double> Utilities::zeros(unsigned int rows){
 vector < vector<double> > Utilities::zeros(unsigned int rows, unsigned int cols){
     vector< vector<double> > out;
     for(unsigned int i = 0; i<rows; i++){
-        vector<double> temp;
-        for(unsigned int j = 0; j<cols;j++){
-            temp.push_back(0);
-        }
-        out.push_back(temp);
+        out.push_back(zeros(cols));
     }
     return out;
+}
+
+vector< vector<double> > Utilities::expandMat(vector< vector<double> > mat, unsigned int rows, unsigned int cols){
+    unsigned int oldNumRows = mat.size();
+    unsigned int oldNumCols = mat[0].size();
+    for(unsigned int i = oldNumRows; i<rows; i++){
+        mat.push_back(zeros(cols));
+    }
+    for(unsigned int i = 0; i<oldNumRows; i++){
+        for(unsigned int j = oldNumCols;j<cols;j++){
+            mat[i].push_back(0);
+        }
+    }
+    return mat;
 }
 
 vector<double> Utilities::readVectorFile(string inputfile,char delim){
@@ -307,11 +317,36 @@ struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, doubl
 
 struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, vector<double> x_0, double tol, unsigned int max_it){
     GMRES_sol sol;
+    vector< vector<double> > v;
+    vector<double> res;
+    
+    vector< vector<double> > h;
+    
+    vector<double> r = axpy(A->smvp(x_0),-1,b);
+    double beta = twoNorm(r);
+    res.push_back(beta);
+    if(beta == 0){
+        sol.converged = true;
+        sol.num_its = 0;
+        sol.x = x_0;
+        sol.res =res;
+        return sol;
+    }
+    v.push_back(axpy(r,1./beta));
+    
+    unsigned int j = 0;
+    while(j<max_it && res.back() < tol){
+        v.push_back(A->smvp(v[j]));
+        for(unsigned int i = 0; i<=j;i++){
+            
+        }
+        j++;
+    }
+    
     
     sol.converged = true;
     sol.num_its = 0;
     sol.x = x_0;
-    vector<double> res;
     sol.res =res;
     return sol;
 }
