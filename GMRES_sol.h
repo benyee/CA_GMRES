@@ -10,6 +10,7 @@
 #define _GMRES_sol_h
 
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
