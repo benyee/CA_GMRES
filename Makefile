@@ -1,5 +1,5 @@
-a.out: main.o SparseMat.o Utilities.o
-	g++ -g main.o SparseMat.o Utilities.o -o a.out
+a.out: main.o SparseMat.o Utilities.o GMRES_sol.h
+	g++ -g main.o SparseMat.o Utilities.o GMRES_sol.h -o a.out
 
 main.o: main.cpp SparseMat.h Utilities.h
 	g++ -g -c main.cpp -o main.o
@@ -7,7 +7,7 @@ main.o: main.cpp SparseMat.h Utilities.h
 SparseMat.o: SparseMat.cpp SparseMat.h
 	g++ -g -c SparseMat.cpp -o SparseMat.o
 
-Utilities.o: Utilities.cpp Utilities.h
+Utilities.o: Utilities.cpp Utilities.h GMRES_sol.h SparseMat.h
 	g++ -g -c Utilities.cpp -o Utilities.o
 
 clean:
