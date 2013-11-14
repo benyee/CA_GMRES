@@ -1,8 +1,8 @@
 a.out: main.o SparseMat.o Utilities.o
 	g++ -g -L/usr/lib64 main.o SparseMat.o Utilities.o -o a.out -lpapi
 
-main.o: main.cpp SparseMat.h Utilities.h
-	g++ -g -c -I/usr/include main.cpp -o main.o
+main.o: main_comp_QR.cpp SparseMat.h Utilities.h
+	g++ -g -c -I/usr/include main_comp_QR.cpp -o main.o
 
 SparseMat.o: SparseMat.cpp SparseMat.h
 	g++ -g -c SparseMat.cpp -o SparseMat.o
