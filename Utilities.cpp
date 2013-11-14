@@ -238,7 +238,7 @@ vector< vector<double> > Utilities::subMatrix(vector< vector<double> > A, pair<u
     while(i<A.size() && i < ind1.second){
         unsigned int j = ind2.first;
         vector<double> temp;
-        while(j<A.size() && j < ind2.second){
+        while(j < ind2.second){
             temp.push_back(A[i][j]);
             j++;
         }
@@ -251,7 +251,7 @@ vector< vector<double> > Utilities::subMatrix(vector< vector<double> > A, pair<u
     }
     while(i<ind1.second){
         vector<double> temp;
-        for(unsigned int j = ind1.first; j<ind2.second; j++){
+        for(unsigned int j = ind1.first; j<A[0].size() && j<ind2.second; j++){
             temp.push_back(0);
         }
         Aout.push_back(temp);
