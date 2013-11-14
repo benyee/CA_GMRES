@@ -25,6 +25,8 @@ public:
     Utilities();
     ~Utilities();
     
+    static const unsigned int MAX_IT = 100;
+    
     static void printDVector(vector<double> vec); //Prints out a vector of doubles
     static void printFullMatrix(vector< vector<double> > mat, bool rowFirst = true); //Prints out a vector of double vectors
     
@@ -66,8 +68,8 @@ public:
     
     
     //Classical GMRES algorithm:
-    static struct GMRES_sol classicalGMRES(SparseMat* A, vector<double> b, double tol = 1.0E-6, unsigned int max_it = 10000);
-    static struct GMRES_sol classicalGMRES(SparseMat* A, vector<double> b, vector<double> x, double tol = 1.0E-6, unsigned int max_it = 10000);
+    static struct GMRES_sol classicalGMRES(SparseMat* A, vector<double> b, double tol = 1.0E-6, unsigned int max_it = MAX_IT);
+    static struct GMRES_sol classicalGMRES(SparseMat* A, vector<double> b, vector<double> x, double tol = 1.0E-6, unsigned int max_it = MAX_IT);
     
     static double twoNorm(vector<double> x);
     static double infNorm(vector<double> x);

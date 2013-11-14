@@ -126,6 +126,9 @@ vector<double> Utilities::matvec(vector< vector<double> > A, vector<double> x, b
         unsigned int minSize = A.size();
         for(unsigned int i = 0;i<minSize;i++){
             out.push_back(dotProd(A[i],x));
+            printDVector(A[i]);
+            printDVector(x);
+            cout<<"Pushing back..."<<dotProd(A[i],x)<<endl;
         }
         return out;
     }
@@ -164,7 +167,8 @@ vector< vector<double> > Utilities::transpose(vector< vector<double> > A){
 
 double Utilities::dotProd(vector<double> x, vector<double> y){
     double sum = 0;
-    for(unsigned int i = 0; i<x.size();i++){
+    unsigned int minSize = min(x.size(),y.size());
+    for(unsigned int i = 0; i<minSize;i++){
         sum += x[i]*y[i];
     }
     return sum;
@@ -291,7 +295,6 @@ vector<double> Utilities::leastSquaresQR(vector< vector<double> > A, vector<doub
     vector<double> x = matvec(QR.first,y);
     x = backSub(QR.second,x);
     return x;
-
 }
 
 vector < vector <double> > Utilities::tsQR(vector < vector < double> > A,unsigned int blksiz){
@@ -352,15 +355,17 @@ struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, vecto
     }
     v.push_back(axpy(r,1./beta));
     
+    vector<double> x_0(x);
     vector<double> e_1;
     e_1.push_back(beta);
     unsigned int j = 0;
-    while(j<max_it && res.back() < tol){
+    while(j<max_it){
+        cout<<"Running iteration "<<j+1<<endl;
         v.push_back(A->smvp(v[j]));
         h = expandMat(h,j+2,j+1);
         for(unsigned int i = 0; i<=j;i++){
-            h[i][j] = dotProd(v[j+1],v[j]);
-            v[j+1] = axpy(v[j],-h[i][j],v[j+1]);
+            h[i][j] = dotProd(v[j+1],v[i]);
+            v[j+1] = axpy(v[i],-h[i][j],v[j+1]);
         }
         h[j+1][j] = twoNorm(v[j+1]);
         if(h[j+1][j] == 0){
@@ -370,9 +375,16 @@ struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, vecto
         }
         v[j+1] = axpy(v[j+1],1.0/h[j+1][j]);
         
-        e_1 = expandVec(e_1,j+1);
+        e_1 = expandVec(e_1,j+2);
+        y = leastSquaresQR(h,e_1);
+        x = axpy(x_0,matvec(v,y,false));
+        res.push_back(twoNorm(axpy(A->smvp(x),-1,b)));
         
         j++;
+        if(res.back()<=tol){
+            sol.converged = true;
+            break;
+        }
     }
     
     

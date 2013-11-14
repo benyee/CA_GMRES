@@ -69,16 +69,42 @@ int main ()
     cout << endl <<"Testing TSQR..."<<endl;
     vector < vector <double> > R2 = Utilities::tsQR(fullSample, 2);
     Utilities::printFullMatrix(R2);
-
-    cout<<endl<<"Testing GMRES_sol struct and its print function..."<<endl;
-    GMRES_sol sol = Utilities::classicalGMRES(sample,samplevec);
-    sol.print();
     
     cout<<endl<<"Testing expand matrix function..."<<endl;
     Utilities::printFullMatrix(Utilities::expandMat(fullSample,10,10));
     
     cout<<endl<<"Testing expand vector function..."<<endl;
     Utilities::printDVector(Utilities::expandVec(samplevec,11));
+    
+    cout<<endl<<"Testing GMRES_sol struct and its print function..."<<endl;
+    GMRES_sol sol = Utilities::classicalGMRES(sample,samplevec);
+    sol.print();
+    
+    /*
+    SparseMat *bigmat = new SparseMat;
+    bigmat->readFullMatrix("tallskinny.txt");
+    vector<vector<double> > bigmatfull = bigmat->convertToFullMatrix(10000,100);
+    cout<<"Running mgs..."<<endl;
+    Utilities::tsQR(bigmatfull,100);
+    cout<<"Done!"<<endl;*/
+    
+    cout<<endl<<"Testing matvec for non-square matrices"<<endl;
+    vector<vector<double> > nonsqmat;
+    vector<double> temp;
+    temp.push_back(1);
+    temp.push_back(2);
+    temp.push_back(3);
+    vector<double> temp2;
+    temp2.push_back(0);
+    temp2.push_back(5);
+    temp2.push_back(6);
+    nonsqmat.push_back(temp);
+    nonsqmat.push_back(temp2);
+    vector<double> sample3vec;
+    sample3vec.push_back(1);
+    sample3vec.push_back(1);
+    sample3vec.push_back(1);
+    Utilities::printDVector(Utilities::matvec(nonsqmat,sample3vec));
     
     cout << "Goodbye world!"<<endl;
     return 0;
