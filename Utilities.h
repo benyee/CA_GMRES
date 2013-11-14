@@ -14,7 +14,12 @@
 #include <string>
 #include <vector>
 #include <cmath>
+<<<<<<< HEAD
 #include <stdlib.h>
+=======
+#include "GMRES_sol.h"
+#include "SparseMat.h"
+>>>>>>> Ben's-Branch
 
 using namespace std;
 
@@ -24,8 +29,19 @@ public:
     Utilities();
     ~Utilities();
     
+    static const unsigned int MAX_IT = 100;
+    
     static void printDVector(vector<double> vec); //Prints out a vector of doubles
     static void printFullMatrix(vector< vector<double> > mat, bool rowFirst = true); //Prints out a vector of double vectors
+    
+    //Make a vector of zeros
+    static vector<double> zeros(unsigned int rows);
+    //Make a matrix of zeros
+    static vector< vector<double> > zeros(unsigned int rows, unsigned int cols);
+    //Expand a vector vec until mat is of size rows
+    static vector<double>  expandVec(vector<double> vec, unsigned int rows);
+    //Expand a RECTANGULAR matrix mat until mat is of size rows,cols
+    static vector< vector<double> > expandMat(vector< vector<double> > mat, unsigned int rows, unsigned int cols);
     
     static vector<double> readVectorFile(string inputfile = "example2.txt",char delim = '\t');
     static vector<double> axpy(vector<double> x, vector<double> y);
@@ -52,7 +68,12 @@ public:
     //Use a QR (mgs) factorization to solve least squares: (not optimal, but more stable)
     static vector<double> leastSquaresQR(vector< vector<double> > A, vector<double> y);
     //Use tall-skinny QR to factorize a matrix
-    static vector < vector <double> > tsQR(vector < vector < double> > A,unsigned int blksiz);
+    static vector < vector <double> > tsQR(vector< vector<double> > A,unsigned int blksiz);
+    
+    
+    //Classical GMRES algorithm:
+    static struct GMRES_sol classicalGMRES(SparseMat* A, vector<double> b, double tol = 1.0E-6, unsigned int max_it = MAX_IT);
+    static struct GMRES_sol classicalGMRES(SparseMat* A, vector<double> b, vector<double> x, double tol = 1.0E-6, unsigned int max_it = MAX_IT);
     
     static double twoNorm(vector<double> x);
     static double infNorm(vector<double> x);
