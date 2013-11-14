@@ -14,12 +14,9 @@
 #include <string>
 #include <vector>
 #include <cmath>
-<<<<<<< HEAD
 #include <stdlib.h>
-=======
 #include "GMRES_sol.h"
 #include "SparseMat.h"
->>>>>>> Ben's-Branch
 
 using namespace std;
 
