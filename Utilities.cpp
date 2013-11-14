@@ -39,6 +39,51 @@ void Utilities::printFullMatrix(vector< vector<double> > mat, bool rowFirst){
     }
 }
 
+vector<double> Utilities::zeros(unsigned int rows){
+    vector<double> out;
+    for(unsigned int i = 0; i<rows; i++){
+        out.push_back(0);
+    }
+    return out;
+}
+vector < vector<double> > Utilities::zeros(unsigned int rows, unsigned int cols){
+    vector< vector<double> > out;
+    for(unsigned int i = 0; i<rows; i++){
+        out.push_back(zeros(cols));
+    }
+    return out;
+}
+
+vector<double> Utilities::expandVec(vector<double> vec, unsigned int rows){
+    unsigned int oldNumRows = vec.size();
+    if(oldNumRows == 0){
+        return zeros(rows);
+    }
+    for(unsigned int i = oldNumRows; i<rows; i++){
+        vec.push_back(0);
+    }
+    return vec;
+}
+vector< vector<double> > Utilities::expandMat(vector< vector<double> > mat, unsigned int rows, unsigned int cols){
+    unsigned int oldNumRows = mat.size();
+    if(oldNumRows == 0){
+        return zeros(rows,cols);
+    }
+    unsigned int oldNumCols = mat[0].size();
+    if(oldNumCols == 0){
+        return zeros(rows,cols);
+    }
+    for(unsigned int i = oldNumRows; i<rows; i++){
+        mat.push_back(zeros(cols));
+    }
+    for(unsigned int i = 0; i<oldNumRows; i++){
+        for(unsigned int j = oldNumCols;j<cols;j++){
+            mat[i].push_back(0);
+        }
+    }
+    return mat;
+}
+
 vector<double> Utilities::readVectorFile(string inputfile,char delim){
     ifstream inputFile;
     inputFile.open(inputfile.c_str());
@@ -81,6 +126,9 @@ vector<double> Utilities::matvec(vector< vector<double> > A, vector<double> x, b
         unsigned int minSize = A.size();
         for(unsigned int i = 0;i<minSize;i++){
             out.push_back(dotProd(A[i],x));
+            printDVector(A[i]);
+            printDVector(x);
+            cout<<"Pushing back..."<<dotProd(A[i],x)<<endl;
         }
         return out;
     }
@@ -119,7 +167,8 @@ vector< vector<double> > Utilities::transpose(vector< vector<double> > A){
 
 double Utilities::dotProd(vector<double> x, vector<double> y){
     double sum = 0;
-    for(unsigned int i = 0; i<x.size();i++){
+    unsigned int minSize = min(x.size(),y.size());
+    for(unsigned int i = 0; i<minSize;i++){
         sum += x[i]*y[i];
     }
     return sum;
@@ -246,7 +295,6 @@ vector<double> Utilities::leastSquaresQR(vector< vector<double> > A, vector<doub
     vector<double> x = matvec(QR.first,y);
     x = backSub(QR.second,x);
     return x;
-
 }
 
 vector < vector <double> > Utilities::tsQR(vector < vector < double> > A,unsigned int blksiz){
@@ -277,6 +325,71 @@ vector < vector <double> > Utilities::tsQR(vector < vector < double> > A,unsigne
     }
         
     return R;
+}
+
+//Classical GMRES algorithm:
+struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, double tol, unsigned int max_it){
+    return classicalGMRES(A,b,zeros(b.size()),tol,max_it);
+}
+struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, vector<double> x, double tol, unsigned int max_it){
+    GMRES_sol sol;
+    sol.converged = false;
+    vector< vector<double> > v;
+    vector<double> res;
+    vector<double> y;
+    
+    
+    vector< vector<double> > h;
+    
+    vector<double> r = axpy(A->smvp(x),-1,b);
+    double beta = twoNorm(r);
+    res.push_back(beta);
+    if(beta == 0){
+        sol.converged = true;
+        sol.num_its = 0;
+        sol.x = x;
+        sol.res =res;
+        return sol;
+    }
+    v.push_back(axpy(r,1./beta));
+    
+    vector<double> x_0(x);
+    vector<double> e_1;
+    e_1.push_back(beta);
+    unsigned int j = 0;
+    while(j<max_it){
+        cout<<"Running iteration "<<j+1<<endl;
+        v.push_back(A->smvp(v[j]));
+        h = expandMat(h,j+2,j+1);
+        for(unsigned int i = 0; i<=j;i++){
+            h[i][j] = dotProd(v[j+1],v[i]);
+            v[j+1] = axpy(v[i],-h[i][j],v[j+1]);
+        }
+        h[j+1][j] = twoNorm(v[j+1]);
+        if(h[j+1][j] == 0){
+            sol.converged = true;
+            res.push_back(0);
+            break;
+        }
+        v[j+1] = axpy(v[j+1],1.0/h[j+1][j]);
+        
+        e_1 = expandVec(e_1,j+2);
+        y = leastSquaresQR(h,e_1);
+        x = axpy(x_0,matvec(v,y,false));
+        res.push_back(twoNorm(axpy(A->smvp(x),-1,b)));
+        
+        j++;
+        if(res.back()<=tol){
+            sol.converged = true;
+            break;
+        }
+    }
+    
+    
+    sol.num_its = j;
+    sol.x = x;
+    sol.res =res;
+    return sol;
 }
 
 
