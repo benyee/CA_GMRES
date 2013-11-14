@@ -1,5 +1,5 @@
 a.out: main.o SparseMat.o Utilities.o GMRES_sol.h
-	g++ -g main.o SparseMat.o Utilities.o GMRES_sol.h -o a.out
+	g++ -g -L/usr/lib64 main.o SparseMat.o Utilities.o GMRES_sol.h -o a.out -lpapi
 
 main.o: main_comp_QR.cpp SparseMat.h Utilities.h GMRES_sol.h
 	g++ -g -c -I/usr/include main_comp_QR.cpp -o main.o
