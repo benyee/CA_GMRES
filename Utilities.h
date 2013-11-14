@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <stdlib.h>
 #include "GMRES_sol.h"
 #include "SparseMat.h"
 
