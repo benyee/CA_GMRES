@@ -213,7 +213,7 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
     for(unsigned int i = 0; i<numcols;i++){
         R[i][i] = twoNorm(At[i]);
         if (R[i][i]==0){
-            Q[i] = At[i];
+			Q[i] = At[i];
         }
         else{
             Q[i] = axpy(At[i],1.0/R[i][i]);
@@ -298,17 +298,17 @@ vector<double> Utilities::leastSquaresQR(vector< vector<double> > A, vector<doub
 }
 
 vector < vector <double> > Utilities::tsQR(vector < vector < double> > A,unsigned int blksiz){
-    unsigned int numrow = A[0].size();
-    unsigned int numcol = A.size();
+    unsigned int numrow = A.size();
+    unsigned int numcol = A[0].size();
     unsigned int numblk = numrow/blksiz;
     
     vector < vector <double> > Ai = subMatrix(A, make_pair(0,blksiz), make_pair(0,numcol));
+	unsigned int numrows = Ai.size();
+    unsigned int numcols = Ai.back().size();
     pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
     vector < vector <double> > R = QR.second;
     
-    cout<<"iteration 1"<<endl;
-    printFullMatrix(R);
-    
+        
     for(unsigned int i=2;i<=numblk;i++){
         Ai = subMatrix(A, make_pair((i-1)*blksiz,i*blksiz), make_pair(0,numcol));
 
@@ -316,8 +316,6 @@ vector < vector <double> > Utilities::tsQR(vector < vector < double> > A,unsigne
 
         pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
         R = QR.second;
-        cout<<"iteration "<<i<<endl;
-        printFullMatrix(R);
     }
     if (numrow % blksiz != 0){
         Ai = subMatrix(A, make_pair((numblk-1)*blksiz,numrow), make_pair(0,numcol));
