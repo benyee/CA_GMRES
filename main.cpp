@@ -80,13 +80,16 @@ int main ()
     GMRES_sol sol = Utilities::classicalGMRES(sample,samplevec);
     sol.print();
     
-    /*
+    
     SparseMat *bigmat = new SparseMat;
     bigmat->readFullMatrix("tallskinny.txt");
     vector<vector<double> > bigmatfull = bigmat->convertToFullMatrix(10000,100);
-    cout<<"Running mgs..."<<endl;
-    Utilities::tsQR(bigmatfull,100);
-    cout<<"Done!"<<endl;*/
+    int start = clock();
+    cout<<"Running mgs..."<<clock()-start<<endl;
+    Utilities::mgs(bigmatfull);
+    cout<<"Running tsQR..."<<clock()-start<<endl;
+    Utilities::tsQR(bigmatfull,50);
+    cout<<"Done!"<<clock()-start<<endl;
     
     cout<<endl<<"Testing matvec for non-square matrices"<<endl;
     vector<vector<double> > nonsqmat;

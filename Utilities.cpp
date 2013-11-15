@@ -126,9 +126,6 @@ vector<double> Utilities::matvec(vector< vector<double> > A, vector<double> x, b
         unsigned int minSize = A.size();
         for(unsigned int i = 0;i<minSize;i++){
             out.push_back(dotProd(A[i],x));
-            printDVector(A[i]);
-            printDVector(x);
-            cout<<"Pushing back..."<<dotProd(A[i],x)<<endl;
         }
         return out;
     }
@@ -196,19 +193,15 @@ vector<double> Utilities::backSub(vector< vector<double> > A, vector<double> b,b
 
 //NOTE THAT THIS RETURNS Q-transpose, NOT Q
 pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector< vector<double> > mat){
-    vector< vector<double> > At = transpose(mat);    vector< vector<double> > Q(At);
-    vector< vector<double> > R;
-    
-    //Initialize R:
-    unsigned int numrows = mat.size();
     unsigned int numcols = mat.back().size();
-    for(unsigned int i = 0; i<numcols;i++){
-        vector<double> temp;
-        for(unsigned int j = 0; j<numcols; j++){
-            temp.push_back(0);
-        }
-        R.push_back(temp);
-    }
+    vector< vector<double> > Q = zeros(numcols,mat.size());
+    vector< vector<double> > R = zeros(numcols,numcols);
+    
+    return mgs(mat, numcols,R,Q);
+}
+
+pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector< vector<double> > mat, unsigned int numcols, vector<vector<double> > R, vector<vector<double> > Q){
+    vector< vector<double> > At = transpose(mat);
     
     for(unsigned int i = 0; i<numcols;i++){
         R[i][i] = twoNorm(At[i]);
@@ -223,7 +216,6 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
             At[j] = axpy(axpy(Q[i],R[i][j]),-1,At[j]);
         }
     }
-    //Stuff goes here
     
     //NOTE THAT THIS RETURNS Q-transpose, NOT Q
     pair<vector< vector<double> >, vector< vector<double> > > output (Q,R);
@@ -238,7 +230,7 @@ vector< vector<double> > Utilities::subMatrix(vector< vector<double> > A, pair<u
     while(i<A.size() && i < ind1.second){
         unsigned int j = ind2.first;
         vector<double> temp;
-        while(j < ind2.second){
+        while(j < A[i].size()){
             temp.push_back(A[i][j]);
             j++;
         }
@@ -303,24 +295,29 @@ vector < vector <double> > Utilities::tsQR(vector < vector < double> > A,unsigne
     unsigned int numblk = numrow/blksiz;
     
     vector < vector <double> > Ai = subMatrix(A, make_pair(0,blksiz), make_pair(0,numcol));
-	unsigned int numrows = Ai.size();
-    unsigned int numcols = Ai.back().size();
     pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
     vector < vector <double> > R = QR.second;
     
-        
-    for(unsigned int i=2;i<=numblk;i++){
+    // i = 2, since Q isn't the proper size yet
+    Ai = subMatrix(A, make_pair(blksiz,2*blksiz), make_pair(0,numcol));
+    Ai = stackMat(R,Ai);
+    QR = mgs(Ai);
+    R = QR.second;
+    
+    // Q and R are the right size i = 3 and beyond
+    for(unsigned int i=3;i<=numblk;i++){
         Ai = subMatrix(A, make_pair((i-1)*blksiz,i*blksiz), make_pair(0,numcol));
-
+        
         Ai = stackMat(R,Ai);
-
-        pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
+        
+        QR = mgs(Ai,numcol,R,QR.first);
         R = QR.second;
     }
+    //If there's an odd block out:
     if (numrow % blksiz != 0){
         Ai = subMatrix(A, make_pair((numblk-1)*blksiz,numrow), make_pair(0,numcol));
         Ai = stackMat(R,Ai);
-        pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
+        QR = mgs(Ai,numcol,R,QR.first);
         R = QR.second;
     }
         

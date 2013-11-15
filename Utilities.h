@@ -59,6 +59,7 @@ public:
     //mat should be given as mat[row][col]
     //NOTE THAT THIS RETURNS Q-transpose, NOT Q
     static pair<vector< vector<double> 	>, vector< vector<double> > > mgs(vector< vector<double> > mat);
+    static pair<vector< vector<double> 	>, vector< vector<double> > > mgs(vector< vector<double> > mat, unsigned int numcols, vector<vector<double> > R, vector<vector<double> > Q);
     
     //Use the normal equations to solve Least Squares:  (Large condition #, may result in inaccuracy)
     static vector<double> leastSquaresNormal(vector< vector<double> > A, vector<double> y);
