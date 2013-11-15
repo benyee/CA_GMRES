@@ -70,22 +70,21 @@ public:
     
     
     //******************Fixed block size stuff***************************************
-    static const unsigned int NUMCOLS = 100;
-    static const unsigned int BLOCK_SIZE = 100;
-    static const unsigned int BLOCK_SIZE2 = 2*BLOCK_SIZE;
+    static const unsigned int NUMCOLS = 15;
+    static const unsigned int BLOCK_SIZE2 = 7200/NUMCOLS;
+    static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - NUMCOLS;
     static void mgs(double At[NUMCOLS][BLOCK_SIZE2], unsigned int numcols, double R[NUMCOLS][NUMCOLS], double Q[NUMCOLS][BLOCK_SIZE2]);
     static double twoNorm(double x[BLOCK_SIZE2]);
     static double dotProd(double x[BLOCK_SIZE2], double y[BLOCK_SIZE2]);
     static void axpy(double x[BLOCK_SIZE2], double y[BLOCK_SIZE2],double out[BLOCK_SIZE2]);
     static void axpy(double x[BLOCK_SIZE2], double a, double out[BLOCK_SIZE2]);
     static void axpy(double x[BLOCK_SIZE2], double a, double y[BLOCK_SIZE2],double out[BLOCK_SIZE2]);
+    static void RAtoAi(vector<vector<double> >  A, vector<vector<double> >  R, double Ai[NUMCOLS][BLOCK_SIZE2], double ind1);
+    static void RAtoAi(vector<vector<double> >  A, double R[NUMCOLS][NUMCOLS], double Ai[NUMCOLS][BLOCK_SIZE2], double ind1);
+    //Use TSQR where the array size is already determined
+    static vector < vector <double> > tsQR_fixed(vector< vector<double> > A);
     //************************************************************************************************
     
-    
-    static void test(double test[NUMCOLS]){
-        test[0] = 4;
-        cout<<"In here dude!"<<endl;
-    }
     
     //Classical GMRES algorithm:
     static struct GMRES_sol classicalGMRES(SparseMat* A, vector<double> b, double tol = 1.0E-6, unsigned int max_it = MAX_IT);
