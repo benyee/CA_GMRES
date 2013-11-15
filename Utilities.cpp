@@ -222,6 +222,150 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
     return output;
 }
 
+//*************************Fixed array size functions****************************************
+//************************************************************************************************
+//************************************************************************************************
+
+//NOTE THAT THIS RETURNS Q-transpose, NOT Q
+void Utilities::mgs(double At[NUMCOLS][BLOCK_SIZE2], unsigned int numcols, double R[NUMCOLS][NUMCOLS], double Q[NUMCOLS][BLOCK_SIZE2]){
+    for(unsigned int i = 0; i<numcols;i++){
+        R[i][i] = twoNorm(At[i]);
+        if (R[i][i]==0){
+			axpy(At[i],1,Q[i]);
+        }
+        else{
+            axpy(At[i],1.0/R[i][i],Q[i]);
+        }
+        for(unsigned int j = i+1; j<numcols;j++){
+            R[i][j] = dotProd(Q[i],At[j]);
+            axpy(Q[i],-1*R[i][j],At[j],At[j]);
+        }
+    }
+}
+
+double Utilities::twoNorm(double x[BLOCK_SIZE2]){
+    return sqrt(dotProd(x,x));
+}
+
+double Utilities::dotProd(double x[BLOCK_SIZE2], double y[BLOCK_SIZE2]){
+    double sum = 0;
+    for(unsigned int i = 0; i<BLOCK_SIZE2;i++){
+        sum += x[i]*y[i];
+    }
+    return sum;
+}
+
+void Utilities::axpy(double x[BLOCK_SIZE2], double y[BLOCK_SIZE2], double out[BLOCK_SIZE2]){
+    return axpy(x,1,y);
+}
+void Utilities::axpy(double x[BLOCK_SIZE2], double a, double out[BLOCK_SIZE2]){
+    if (a != 1){
+        for(unsigned int i = 0; i<BLOCK_SIZE2;i++){
+            out[i] = a*x[i];
+        }
+    }else{
+        for(unsigned int i = 0; i<BLOCK_SIZE2;i++){
+            out[i] = x[i];
+        }
+    }
+}
+void Utilities::axpy(double x[BLOCK_SIZE2], double a, double y[BLOCK_SIZE2],double out[BLOCK_SIZE2]){
+    if (a != 1){
+        for(unsigned int i = 0; i<BLOCK_SIZE2;i++){
+            out[i] = a*x[i] + y[i];
+        }
+    } else{
+        for(unsigned int i = 0; i<BLOCK_SIZE2;i++){
+            out[i] = x[i] + y[i];
+        }
+    }
+}
+
+void Utilities::RAtoAi(vector<vector<double> >  A, vector<vector<double> >  R, double Ai[NUMCOLS][BLOCK_SIZE2], double ind1){
+    for(unsigned int j = 0; j<NUMCOLS;j++){
+        for(unsigned int i = 0; i< NUMCOLS;i++){
+            Ai[i][j] = R[j][i];
+        }
+    }
+    for(unsigned int j = 0; j<BLOCK_SIZE;j++){
+        for(unsigned int i = 0; i< NUMCOLS;i++){
+            Ai[i][j+NUMCOLS] = A[j+ind1][i];
+        }
+    }
+}
+void Utilities::RAtoAi(vector<vector<double> >  A, double R[NUMCOLS][NUMCOLS], double Ai[NUMCOLS][BLOCK_SIZE2], double ind1){
+    for(unsigned int j = 0; j<NUMCOLS;j++){
+        for(unsigned int i = 0; i< NUMCOLS;i++){
+            Ai[j][i] = R[i][j];
+        }
+    }
+    for(unsigned int j = 0; j<BLOCK_SIZE;j++){
+        for(unsigned int i = 0; i< NUMCOLS;i++){
+            Ai[i][j+NUMCOLS] = A[j+ind1][i];
+        }
+    }
+}
+
+vector < vector <double> > Utilities::tsQR_fixed(vector < vector < double> > A){
+    unsigned int numrow = A.size();
+    unsigned int numblk = numrow/BLOCK_SIZE;
+    
+    vector < vector <double> > Ai = subMatrix(A, make_pair(0,BLOCK_SIZE), make_pair(0,NUMCOLS));
+    pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
+    vector < vector <double> > R = QR.second;
+    
+    // i = 2, since Q isn't the proper size yet
+    Ai = subMatrix(A, make_pair(BLOCK_SIZE,2*BLOCK_SIZE), make_pair(0,NUMCOLS));
+    Ai = stackMat(R,Ai);
+    QR = mgs(Ai);
+    R = QR.second;
+    
+    // i = 3, R isn't a matrix yet
+    double Ai_arr[NUMCOLS][BLOCK_SIZE2];
+    RAtoAi(A,R,Ai_arr,2*BLOCK_SIZE);
+    double R_arr[NUMCOLS][NUMCOLS];
+    double Q_arr[NUMCOLS][BLOCK_SIZE2];
+    mgs(Ai_arr,NUMCOLS,R_arr,Q_arr);
+    
+    // Q and R are the right format i = 4 and beyond
+    for(unsigned int i=3;i<numblk;i++){
+        int start = clock();
+        RAtoAi(A,R_arr,Ai_arr,i*BLOCK_SIZE); // RAtoAi(A,R_arr,Ai_arr,(i-1)*numblk);
+        cout<<"after RAtoAI"<<clock()-start<<endl;
+        start = clock();
+        mgs(Ai_arr,NUMCOLS,R_arr,Q_arr);
+        cout<<"after mgs"<<clock()-start<<endl;
+    }
+    
+    //Convert R back to a vector:
+    for(unsigned int i = 0; i<NUMCOLS;i++){
+        for(unsigned int j = 0; j<NUMCOLS;j++){
+            R[i][j] = R_arr[i][j];
+        }
+    }
+    //Convert Q back to a vector:
+    for(unsigned int i = 0; i<NUMCOLS;i++){
+        for(unsigned int j = 0; j<BLOCK_SIZE2;j++){
+            QR.first[i][j] = Q_arr[i][j];
+        }
+    }
+    
+    
+    //If there's an odd block out:
+    if (numrow % BLOCK_SIZE != 0){
+        Ai = subMatrix(A, make_pair((numblk-1)*BLOCK_SIZE,numrow), make_pair(0,NUMCOLS));
+        Ai = stackMat(R,Ai);
+        QR = mgs(Ai,NUMCOLS,R,QR.first);
+        R = QR.second;
+    }
+    
+    
+    return R;
+}
+//************************************************************************************************
+//************************************************************************************************
+//************************************************************************************************
+
 
 vector< vector<double> > Utilities::subMatrix(vector< vector<double> > A, pair<unsigned int,unsigned int> ind1, pair<unsigned int,unsigned int> ind2){
     vector< vector<double> > Aout;
