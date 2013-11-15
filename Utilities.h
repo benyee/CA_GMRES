@@ -70,7 +70,7 @@ public:
     
     
     //******************Fixed block size stuff***************************************
-    static const unsigned int NUMCOLS = 15;
+    static const unsigned int NUMCOLS = 60;
     static const unsigned int BLOCK_SIZE2 = 7200/NUMCOLS;
     static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - NUMCOLS;
     static void mgs(double At[NUMCOLS][BLOCK_SIZE2], unsigned int numcols, double R[NUMCOLS][NUMCOLS], double Q[NUMCOLS][BLOCK_SIZE2]);

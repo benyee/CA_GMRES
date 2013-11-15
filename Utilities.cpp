@@ -329,12 +329,8 @@ vector < vector <double> > Utilities::tsQR_fixed(vector < vector < double> > A){
     
     // Q and R are the right format i = 4 and beyond
     for(unsigned int i=3;i<numblk;i++){
-        int start = clock();
         RAtoAi(A,R_arr,Ai_arr,i*BLOCK_SIZE); // RAtoAi(A,R_arr,Ai_arr,(i-1)*numblk);
-        cout<<"after RAtoAI"<<clock()-start<<endl;
-        start = clock();
         mgs(Ai_arr,NUMCOLS,R_arr,Q_arr);
-        cout<<"after mgs"<<clock()-start<<endl;
     }
     
     //Convert R back to a vector:
