@@ -222,6 +222,69 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
     return output;
 }
 
+//*************************Fixed array size functions****************************************
+//************************************************************************************************
+//************************************************************************************************
+
+//NOTE THAT THIS RETURNS Q-transpose, NOT Q
+void Utilities::mgs(double At[NUMCOLS][BLOCK_SIZE2], unsigned int numcols, double R[NUMCOLS][NUMCOLS], double Q[NUMCOLS][BLOCK_SIZE2]){
+    for(unsigned int i = 0; i<numcols;i++){
+        R[i][i] = twoNorm(At[i]);
+        if (R[i][i]==0){
+			axpy(At[i],1,Q[i]);
+        }
+        else{
+            axpy(At[i],1.0/R[i][i],Q[i]);
+        }
+        for(unsigned int j = i+1; j<numcols;j++){
+            R[i][j] = dotProd(Q[i],At[j]);
+            axpy(Q[i],-1*R[i][j],At[j],At[j]);
+        }
+    }
+}
+
+double Utilities::twoNorm(double x[BLOCK_SIZE2]){
+    return sqrt(dotProd(x,x));
+}
+
+double Utilities::dotProd(double x[BLOCK_SIZE2], double y[BLOCK_SIZE2]){
+    double sum = 0;
+    for(unsigned int i = 0; i<BLOCK_SIZE2;i++){
+        sum += x[i]*y[i];
+    }
+    return sum;
+}
+
+void Utilities::axpy(double x[BLOCK_SIZE2], double y[BLOCK_SIZE2], double out[BLOCK_SIZE2]){
+    return axpy(x,1,y);
+}
+void Utilities::axpy(double x[BLOCK_SIZE2], double a, double out[BLOCK_SIZE2]){
+    if (a != 1){
+        for(unsigned int i = 0; i<BLOCK_SIZE2;i++){
+            out[i] = a*x[i];
+        }
+    }else{
+        for(unsigned int i = 0; i<BLOCK_SIZE2;i++){
+            out[i] = x[i];
+        }
+    }
+}
+void Utilities::axpy(double x[BLOCK_SIZE2], double a, double y[BLOCK_SIZE2],double out[BLOCK_SIZE2]){
+    if (a != 1){
+        for(unsigned int i = 0; i<BLOCK_SIZE2;i++){
+            out[i] = a*x[i] + y[i];
+        }
+    } else{
+        for(unsigned int i = 0; i<BLOCK_SIZE2;i++){
+            out[i] = x[i] + y[i];
+        }
+    }
+}
+
+//************************************************************************************************
+//************************************************************************************************
+//************************************************************************************************
+
 
 vector< vector<double> > Utilities::subMatrix(vector< vector<double> > A, pair<unsigned int,unsigned int> ind1, pair<unsigned int,unsigned int> ind2){
     vector< vector<double> > Aout;

@@ -69,6 +69,24 @@ public:
     static vector < vector <double> > tsQR(vector< vector<double> > A,unsigned int blksiz);
     
     
+    //******************Fixed block size stuff***************************************
+    static const unsigned int NUMCOLS = 100;
+    static const unsigned int BLOCK_SIZE = 100;
+    static const unsigned int BLOCK_SIZE2 = 2*BLOCK_SIZE;
+    static void mgs(double At[NUMCOLS][BLOCK_SIZE2], unsigned int numcols, double R[NUMCOLS][NUMCOLS], double Q[NUMCOLS][BLOCK_SIZE2]);
+    static double twoNorm(double x[BLOCK_SIZE2]);
+    static double dotProd(double x[BLOCK_SIZE2], double y[BLOCK_SIZE2]);
+    static void axpy(double x[BLOCK_SIZE2], double y[BLOCK_SIZE2],double out[BLOCK_SIZE2]);
+    static void axpy(double x[BLOCK_SIZE2], double a, double out[BLOCK_SIZE2]);
+    static void axpy(double x[BLOCK_SIZE2], double a, double y[BLOCK_SIZE2],double out[BLOCK_SIZE2]);
+    //************************************************************************************************
+    
+    
+    static void test(double test[NUMCOLS]){
+        test[0] = 4;
+        cout<<"In here dude!"<<endl;
+    }
+    
     //Classical GMRES algorithm:
     static struct GMRES_sol classicalGMRES(SparseMat* A, vector<double> b, double tol = 1.0E-6, unsigned int max_it = MAX_IT);
     static struct GMRES_sol classicalGMRES(SparseMat* A, vector<double> b, vector<double> x, double tol = 1.0E-6, unsigned int max_it = MAX_IT);

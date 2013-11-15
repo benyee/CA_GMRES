@@ -109,6 +109,15 @@ int main ()
     sample3vec.push_back(1);
     Utilities::printDVector(Utilities::matvec(nonsqmat,sample3vec));
     
+    /*
+    cout<<"Testing how arrays are modified in functions..."<<endl;
+    double test[Utilities::NUMCOLS];
+    test[0] =543;
+    test[1] = 54444;
+    Utilities::test(test);
+    cout<<"test[0] is now..."<<test[0]<<endl;*/
+    
+    
     cout << "Goodbye world!"<<endl;
     return 0;
 }
