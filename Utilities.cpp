@@ -11,7 +11,7 @@
 Utilities::Utilities(){
 }
 
-void Utilities::printDVector(vector<double> vec){
+void Utilities::printDVector(const vector<double> &vec){
     cout<<"[ ";
     for(unsigned int i = 0; i < vec.size(); i++){
         cout<<vec[i]<<" ";
@@ -19,7 +19,7 @@ void Utilities::printDVector(vector<double> vec){
     cout<<"]"<<endl;
 }
 
-void Utilities::printFullMatrix(vector< vector<double> > mat, bool rowFirst){
+void Utilities::printFullMatrix(const vector< vector<double> > &mat, bool rowFirst){
     if(rowFirst){
         cout<<"---Matrix output begin--"<<endl;
         for(unsigned int i = 0; i < mat.size();i++){
@@ -54,24 +54,23 @@ vector < vector<double> > Utilities::zeros(unsigned int rows, unsigned int cols)
     return out;
 }
 
-vector<double> Utilities::expandVec(vector<double> vec, unsigned int rows){
+void Utilities::expandVec(vector<double> &vec, unsigned int rows){
     unsigned int oldNumRows = vec.size();
     if(oldNumRows == 0){
-        return zeros(rows);
+        vec = zeros(rows);
     }
     for(unsigned int i = oldNumRows; i<rows; i++){
         vec.push_back(0);
     }
-    return vec;
 }
-vector< vector<double> > Utilities::expandMat(vector< vector<double> > mat, unsigned int rows, unsigned int cols){
+void Utilities::expandMat(vector< vector<double> > &mat, unsigned int rows, unsigned int cols){
     unsigned int oldNumRows = mat.size();
     if(oldNumRows == 0){
-        return zeros(rows,cols);
+        mat = zeros(rows,cols);
     }
     unsigned int oldNumCols = mat[0].size();
     if(oldNumCols == 0){
-        return zeros(rows,cols);
+        mat = zeros(rows,cols);
     }
     for(unsigned int i = oldNumRows; i<rows; i++){
         mat.push_back(zeros(cols));
@@ -81,7 +80,6 @@ vector< vector<double> > Utilities::expandMat(vector< vector<double> > mat, unsi
             mat[i].push_back(0);
         }
     }
-    return mat;
 }
 
 vector<double> Utilities::readVectorFile(string inputfile,char delim){
@@ -99,14 +97,14 @@ vector<double> Utilities::readVectorFile(string inputfile,char delim){
     return out;
 }
 
-vector<double> Utilities::axpy(vector<double> x, vector<double> y){
+vector<double> Utilities::axpy(const vector<double> &x,const vector<double> &y){
     return axpy(x,1,y);
 }
-vector<double> Utilities::axpy(vector<double> x, double a){
+vector<double> Utilities::axpy(const vector<double> &x, double a){
     vector<double> y;
     return axpy(x,a,y);
 }
-vector<double> Utilities::axpy(vector<double> x, double a, vector<double> y){
+vector<double> Utilities::axpy(const vector<double> &x, double a, const vector<double> &y){
     vector<double> out(x);
     if (a != 1){
         for(unsigned int i = 0; i<x.size();i++){
@@ -120,7 +118,7 @@ vector<double> Utilities::axpy(vector<double> x, double a, vector<double> y){
     return out;
 }
 
-vector<double> Utilities::matvec(vector< vector<double> > A, vector<double> x, bool rowFirst){
+vector<double> Utilities::matvec(const vector< vector<double> > &A, const vector<double> &x, bool rowFirst){
     vector<double> out;
     if(rowFirst){
         unsigned int minSize = A.size();
@@ -140,7 +138,7 @@ vector<double> Utilities::matvec(vector< vector<double> > A, vector<double> x, b
     return out;
 }
 
-vector< vector<double> > Utilities::transpose(vector< vector<double> > A){
+vector< vector<double> > Utilities::transpose(const vector< vector<double> > &A){
     vector< vector<double> > At;
     unsigned int numcols = A[0].size();
     unsigned int numrows = A.size();
@@ -171,11 +169,7 @@ double Utilities::dotProd(vector<double> x, vector<double> y){
     return sum;
 }
 
-vector<double> Utilities::backSub(vector< vector<double> > A, vector<double> b,bool rowFirst){
-    if(!rowFirst){
-        A = transpose(A);
-    }
-    
+vector<double> Utilities::backSub(const vector< vector<double> > &A,const vector<double> &b,bool rowFirst){
     vector<double> x(b);
     for(int i = A.size()-1; i>=0;i--){
         for(unsigned int j = i+1; j < A.size(); j++){
@@ -184,15 +178,11 @@ vector<double> Utilities::backSub(vector< vector<double> > A, vector<double> b,b
         x[i] = x[i]/A[i][i];
     }
     
-    if(!rowFirst){
-        A = transpose(A);
-    }
-    
     return x;
 }
 
 //NOTE THAT THIS RETURNS Q-transpose, NOT Q
-pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector< vector<double> > mat){
+pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(const vector< vector<double> > &mat){
     unsigned int numcols = mat.back().size();
     vector< vector<double> > Q = zeros(numcols,mat.size());
     vector< vector<double> > R = zeros(numcols,numcols);
@@ -200,7 +190,7 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
     return mgs(mat, numcols,R,Q);
 }
 
-pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector< vector<double> > mat, unsigned int numcols, vector<vector<double> > R, vector<vector<double> > Q){
+pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(const vector< vector<double> > &mat, unsigned int numcols, vector<vector<double> > R, vector<vector<double> > Q){
     vector< vector<double> > At = transpose(mat);
     
     for(unsigned int i = 0; i<numcols;i++){
@@ -222,6 +212,7 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
     return output;
 }
 
+
 //*************************Fixed array size functions****************************************
 //************************************************************************************************
 //************************************************************************************************
@@ -242,6 +233,34 @@ void Utilities::mgs(double At[NUMCOLS][BLOCK_SIZE2], unsigned int numcols, doubl
         }
     }
 }
+/*
+//NOTE THAT THIS RETURNS Q-transpose, NOT Q
+void Utilities::mgs(vector<vector<double> > &At, unsigned int numcols, double Q[NUMCOLS][BLOCK_SIZE2], unsigned int ind){
+    for(unsigned int i = 0; i<numcols;i++){
+        for(unsigned int k = 0; k<BLOCK_SIZE2;k++){
+            At[i][i] += At[i][k+ind]*At[i][k+ind];
+        }
+        At[i][i] = sqrt(At[i][i]);
+        if (At[i][i]==0){
+			for(unsigned int k = 0; k<BLOCK_SIZE2;k++){
+                Q[i][k] = 0;
+            }
+        }
+        else{
+            for(unsigned int k = 0; k<BLOCK_SIZE2;k++){
+                Q[i][k] = At[i][k+ind]/At[i][i];
+            }
+        }
+        for(unsigned int j = i+1; j<numcols;j++){
+            for(unsigned int k = 0;  k<BLOCK_SIZE2;k++){
+                At[j][i] += Q[i][k]*At[j][k+ind];
+            }
+            for(unsigned int k = 0; k<BLOCK_SIZE2;k++){
+                At[j][k+ind] -= Q[i][k]*At[j][i];
+            }
+        }
+    }
+}*/
 
 double Utilities::twoNorm(double x[BLOCK_SIZE2]){
     return sqrt(dotProd(x,x));
@@ -281,7 +300,7 @@ void Utilities::axpy(double x[BLOCK_SIZE2], double a, double y[BLOCK_SIZE2],doub
     }
 }
 
-void Utilities::RAtoAi(vector<vector<double> >  A, vector<vector<double> >  R, double Ai[NUMCOLS][BLOCK_SIZE2], double ind1){
+void Utilities::RAtoAi(const vector<vector<double> >  &A, vector<vector<double> >  R, double Ai[NUMCOLS][BLOCK_SIZE2], double ind1){
     for(unsigned int j = 0; j<NUMCOLS;j++){
         for(unsigned int i = 0; i< NUMCOLS;i++){
             Ai[i][j] = R[j][i];
@@ -293,7 +312,7 @@ void Utilities::RAtoAi(vector<vector<double> >  A, vector<vector<double> >  R, d
         }
     }
 }
-void Utilities::RAtoAi(vector<vector<double> >  A, double R[NUMCOLS][NUMCOLS], double Ai[NUMCOLS][BLOCK_SIZE2], double ind1){
+void Utilities::RAtoAi(const vector<vector<double> >  &A, double R[NUMCOLS][NUMCOLS], double Ai[NUMCOLS][BLOCK_SIZE2], double ind1){
     for(unsigned int j = 0; j<NUMCOLS;j++){
         for(unsigned int i = 0; i< NUMCOLS;i++){
             Ai[j][i] = R[i][j];
@@ -306,7 +325,7 @@ void Utilities::RAtoAi(vector<vector<double> >  A, double R[NUMCOLS][NUMCOLS], d
     }
 }
 
-vector < vector <double> > Utilities::tsQR_fixed(vector < vector < double> > A){
+vector < vector <double> > Utilities::tsQR_fixed(const vector < vector < double> > &A){
     unsigned int numrow = A.size();
     unsigned int numblk = numrow/BLOCK_SIZE;
     
@@ -314,11 +333,36 @@ vector < vector <double> > Utilities::tsQR_fixed(vector < vector < double> > A){
     pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
     vector < vector <double> > R = QR.second;
     
+    
     // i = 2, since Q isn't the proper size yet
     Ai = subMatrix(A, make_pair(BLOCK_SIZE,2*BLOCK_SIZE), make_pair(0,NUMCOLS));
     Ai = stackMat(R,Ai);
     QR = mgs(Ai);
     R = QR.second;
+    /*
+    unsigned int start = clock();
+    vector < vector<double> > At = transpose(A);
+    cout<<"transpose took "<<clock()-start<<endl;
+    
+    for(unsigned int i = 0; i<NUMCOLS;i++){
+        for(unsigned int j = 0; j<NUMCOLS;j++){
+            At[i][j] = R[j][i];
+        }
+    }
+    double Q_arr[NUMCOLS][BLOCK_SIZE2];
+    cout<<"numblk is "<<numblk<<endl;
+    for(unsigned int i = 2; i<numblk;i++){
+       // start = clock();
+        mgs(At,NUMCOLS,Q_arr,i*BLOCK_SIZE-NUMCOLS);
+        //cout<<"iteration took "<<clock()-start<<endl;
+    }
+    
+    
+    for(unsigned int i = 0; i<NUMCOLS;i++){
+        for(unsigned int j = 0; j<NUMCOLS;j++){
+            R[j][i] = At[i][j];
+        }
+    }*/
     
     // i = 3, R isn't a matrix yet
     double Ai_arr[NUMCOLS][BLOCK_SIZE2];
@@ -326,11 +370,15 @@ vector < vector <double> > Utilities::tsQR_fixed(vector < vector < double> > A){
     double R_arr[NUMCOLS][NUMCOLS];
     double Q_arr[NUMCOLS][BLOCK_SIZE2];
     mgs(Ai_arr,NUMCOLS,R_arr,Q_arr);
-    
+
     // Q and R are the right format i = 4 and beyond
     for(unsigned int i=3;i<numblk;i++){
+        //unsigned int start = clock();
         RAtoAi(A,R_arr,Ai_arr,i*BLOCK_SIZE); // RAtoAi(A,R_arr,Ai_arr,(i-1)*numblk);
+        //cout<<"RAtoAi took "<<clock()-start<<endl;
+        //start = clock();
         mgs(Ai_arr,NUMCOLS,R_arr,Q_arr);
+        //cout<<"mgs took "<<clock()-start<<endl;
     }
     
     //Convert R back to a vector:
@@ -363,7 +411,7 @@ vector < vector <double> > Utilities::tsQR_fixed(vector < vector < double> > A){
 //************************************************************************************************
 
 
-vector< vector<double> > Utilities::subMatrix(vector< vector<double> > A, pair<unsigned int,unsigned int> ind1, pair<unsigned int,unsigned int> ind2){
+vector< vector<double> > Utilities::subMatrix(const vector< vector<double> > &A, pair<unsigned int,unsigned int> ind1, pair<unsigned int,unsigned int> ind2){
     vector< vector<double> > Aout;
     
     unsigned int i = ind1.first;
@@ -422,14 +470,14 @@ vector<double> Utilities::leastSquaresNormal(vector< vector<double> > A, vector<
     return x;
 }
 
-vector<double> Utilities::leastSquaresQR(vector< vector<double> > A, vector<double> y){
+vector<double> Utilities::leastSquaresQR(const vector< vector<double> > &A,const  vector<double> &y){
     pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(A);
     vector<double> x = matvec(QR.first,y);
     x = backSub(QR.second,x);
     return x;
 }
 
-vector < vector <double> > Utilities::tsQR(vector < vector < double> > A,unsigned int blksiz){
+vector < vector <double> > Utilities::tsQR(const vector < vector < double> > &A,unsigned int blksiz){
     unsigned int numrow = A.size();
     unsigned int numcol = A[0].size();
     unsigned int numblk = numrow/blksiz;
@@ -465,10 +513,10 @@ vector < vector <double> > Utilities::tsQR(vector < vector < double> > A,unsigne
 }
 
 //Classical GMRES algorithm:
-struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, double tol, unsigned int max_it){
+struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, const vector<double> &b, double tol, unsigned int max_it){
     return classicalGMRES(A,b,zeros(b.size()),tol,max_it);
 }
-struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, vector<double> x, double tol, unsigned int max_it){
+struct GMRES_sol Utilities::classicalGMRES(SparseMat* A,const vector<double> &b, vector<double> x, double tol, unsigned int max_it){
     GMRES_sol sol;
     sol.converged = false;
     vector< vector<double> > v;
@@ -497,7 +545,7 @@ struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, vecto
     while(j<max_it){
         cout<<"Running iteration "<<j+1<<endl;
         v.push_back(A->smvp(v[j]));
-        h = expandMat(h,j+2,j+1);
+        expandMat(h,j+2,j+1);
         for(unsigned int i = 0; i<=j;i++){
             h[i][j] = dotProd(v[j+1],v[i]);
             v[j+1] = axpy(v[i],-h[i][j],v[j+1]);
@@ -510,7 +558,7 @@ struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, vecto
         }
         v[j+1] = axpy(v[j+1],1.0/h[j+1][j]);
         
-        e_1 = expandVec(e_1,j+2);
+        expandVec(e_1,j+2);
         y = leastSquaresQR(h,e_1);
         x = axpy(x_0,matvec(v,y,false));
         res.push_back(twoNorm(axpy(A->smvp(x),-1,b)));
@@ -530,7 +578,7 @@ struct GMRES_sol Utilities::classicalGMRES(SparseMat* A, vector<double> b, vecto
 }
 
 
-double Utilities::infNorm(vector<double> x){
+double Utilities::infNorm(const vector<double> &x){
     double max = abs(x[0]);
     
     for(unsigned int i=1; i<x.size(); i++){
@@ -542,6 +590,6 @@ double Utilities::infNorm(vector<double> x){
     return max;
 }
 
-double Utilities::twoNorm(vector<double> x){
+double Utilities::twoNorm(const vector<double> &x){
     return sqrt(dotProd(x,x));
 }

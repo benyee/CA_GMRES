@@ -35,7 +35,7 @@ public:
     //rowFirst determines whether the output vector has rows or columns as its outer structure
     //rowFirst = true means that [i][j] refers to the i-th row and j-th column
     
-    vector<double> smvp(vector<double> vec);
+    vector<double> smvp(const vector<double> &vec);
     
     void print_matrix();
     

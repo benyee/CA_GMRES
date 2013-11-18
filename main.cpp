@@ -71,10 +71,14 @@ int main ()
     Utilities::printFullMatrix(R2);
     
     cout<<endl<<"Testing expand matrix function..."<<endl;
-    Utilities::printFullMatrix(Utilities::expandMat(fullSample,10,10));
+    vector<vector<double> > testfullmat(fullSample);
+    Utilities::expandMat(testfullmat,10,10);
+    Utilities::printFullMatrix(testfullmat);
     
     cout<<endl<<"Testing expand vector function..."<<endl;
-    Utilities::printDVector(Utilities::expandVec(samplevec,11));
+    vector<double> testsamplevec(samplevec);
+    Utilities::expandVec(testsamplevec,11);
+    Utilities::printDVector(testsamplevec);
     
     cout<<endl<<"Testing GMRES_sol struct and its print function..."<<endl;
     GMRES_sol sol = Utilities::classicalGMRES(sample,samplevec);
