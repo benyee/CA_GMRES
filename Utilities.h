@@ -74,13 +74,14 @@ public:
     static const unsigned int BLOCK_SIZE2 = 7200/NUMCOLS;
     static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - NUMCOLS;
     static void mgs(double At[NUMCOLS][BLOCK_SIZE2], unsigned int numcols, double R[NUMCOLS][NUMCOLS], double Q[NUMCOLS][BLOCK_SIZE2]);
+    //static void mgs(vector<vector<double> > &At, unsigned int numcols, double Q[NUMCOLS][BLOCK_SIZE2], unsigned int ind);
     static double twoNorm(double x[BLOCK_SIZE2]);
     static double dotProd(double x[BLOCK_SIZE2], double y[BLOCK_SIZE2]);
     static void axpy(double x[BLOCK_SIZE2], double y[BLOCK_SIZE2],double out[BLOCK_SIZE2]);
     static void axpy(double x[BLOCK_SIZE2], double a, double out[BLOCK_SIZE2]);
     static void axpy(double x[BLOCK_SIZE2], double a, double y[BLOCK_SIZE2],double out[BLOCK_SIZE2]);
-    static void RAtoAi(vector<vector<double> >  A, vector<vector<double> >  R, double Ai[NUMCOLS][BLOCK_SIZE2], double ind1);
-    static void RAtoAi(vector<vector<double> >  A, double R[NUMCOLS][NUMCOLS], double Ai[NUMCOLS][BLOCK_SIZE2], double ind1);
+    static void RAtoAi(const vector<vector<double> >  &A, vector<vector<double> >  R, double Ai[NUMCOLS][BLOCK_SIZE2], double ind1);
+    static void RAtoAi(const vector<vector<double> >  &A, double R[NUMCOLS][NUMCOLS], double Ai[NUMCOLS][BLOCK_SIZE2], double ind1);
     //Use TSQR where the array size is already determined
     static vector < vector <double> > tsQR_fixed(vector< vector<double> > A);
     //************************************************************************************************

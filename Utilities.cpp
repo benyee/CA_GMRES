@@ -222,6 +222,7 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs(vector<
     return output;
 }
 
+
 //*************************Fixed array size functions****************************************
 //************************************************************************************************
 //************************************************************************************************
@@ -242,6 +243,34 @@ void Utilities::mgs(double At[NUMCOLS][BLOCK_SIZE2], unsigned int numcols, doubl
         }
     }
 }
+/*
+//NOTE THAT THIS RETURNS Q-transpose, NOT Q
+void Utilities::mgs(vector<vector<double> > &At, unsigned int numcols, double Q[NUMCOLS][BLOCK_SIZE2], unsigned int ind){
+    for(unsigned int i = 0; i<numcols;i++){
+        for(unsigned int k = 0; k<BLOCK_SIZE2;k++){
+            At[i][i] += At[i][k+ind]*At[i][k+ind];
+        }
+        At[i][i] = sqrt(At[i][i]);
+        if (At[i][i]==0){
+			for(unsigned int k = 0; k<BLOCK_SIZE2;k++){
+                Q[i][k] = 0;
+            }
+        }
+        else{
+            for(unsigned int k = 0; k<BLOCK_SIZE2;k++){
+                Q[i][k] = At[i][k+ind]/At[i][i];
+            }
+        }
+        for(unsigned int j = i+1; j<numcols;j++){
+            for(unsigned int k = 0;  k<BLOCK_SIZE2;k++){
+                At[j][i] += Q[i][k]*At[j][k+ind];
+            }
+            for(unsigned int k = 0; k<BLOCK_SIZE2;k++){
+                At[j][k+ind] -= Q[i][k]*At[j][i];
+            }
+        }
+    }
+}*/
 
 double Utilities::twoNorm(double x[BLOCK_SIZE2]){
     return sqrt(dotProd(x,x));
@@ -281,7 +310,7 @@ void Utilities::axpy(double x[BLOCK_SIZE2], double a, double y[BLOCK_SIZE2],doub
     }
 }
 
-void Utilities::RAtoAi(vector<vector<double> >  A, vector<vector<double> >  R, double Ai[NUMCOLS][BLOCK_SIZE2], double ind1){
+void Utilities::RAtoAi(const vector<vector<double> >  &A, vector<vector<double> >  R, double Ai[NUMCOLS][BLOCK_SIZE2], double ind1){
     for(unsigned int j = 0; j<NUMCOLS;j++){
         for(unsigned int i = 0; i< NUMCOLS;i++){
             Ai[i][j] = R[j][i];
@@ -293,7 +322,7 @@ void Utilities::RAtoAi(vector<vector<double> >  A, vector<vector<double> >  R, d
         }
     }
 }
-void Utilities::RAtoAi(vector<vector<double> >  A, double R[NUMCOLS][NUMCOLS], double Ai[NUMCOLS][BLOCK_SIZE2], double ind1){
+void Utilities::RAtoAi(const vector<vector<double> >  &A, double R[NUMCOLS][NUMCOLS], double Ai[NUMCOLS][BLOCK_SIZE2], double ind1){
     for(unsigned int j = 0; j<NUMCOLS;j++){
         for(unsigned int i = 0; i< NUMCOLS;i++){
             Ai[j][i] = R[i][j];
@@ -314,11 +343,36 @@ vector < vector <double> > Utilities::tsQR_fixed(vector < vector < double> > A){
     pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
     vector < vector <double> > R = QR.second;
     
+    
     // i = 2, since Q isn't the proper size yet
     Ai = subMatrix(A, make_pair(BLOCK_SIZE,2*BLOCK_SIZE), make_pair(0,NUMCOLS));
     Ai = stackMat(R,Ai);
     QR = mgs(Ai);
     R = QR.second;
+    /*
+    unsigned int start = clock();
+    vector < vector<double> > At = transpose(A);
+    cout<<"transpose took "<<clock()-start<<endl;
+    
+    for(unsigned int i = 0; i<NUMCOLS;i++){
+        for(unsigned int j = 0; j<NUMCOLS;j++){
+            At[i][j] = R[j][i];
+        }
+    }
+    double Q_arr[NUMCOLS][BLOCK_SIZE2];
+    cout<<"numblk is "<<numblk<<endl;
+    for(unsigned int i = 2; i<numblk;i++){
+       // start = clock();
+        mgs(At,NUMCOLS,Q_arr,i*BLOCK_SIZE-NUMCOLS);
+        //cout<<"iteration took "<<clock()-start<<endl;
+    }
+    
+    
+    for(unsigned int i = 0; i<NUMCOLS;i++){
+        for(unsigned int j = 0; j<NUMCOLS;j++){
+            R[j][i] = At[i][j];
+        }
+    }*/
     
     // i = 3, R isn't a matrix yet
     double Ai_arr[NUMCOLS][BLOCK_SIZE2];
@@ -326,11 +380,15 @@ vector < vector <double> > Utilities::tsQR_fixed(vector < vector < double> > A){
     double R_arr[NUMCOLS][NUMCOLS];
     double Q_arr[NUMCOLS][BLOCK_SIZE2];
     mgs(Ai_arr,NUMCOLS,R_arr,Q_arr);
-    
+
     // Q and R are the right format i = 4 and beyond
     for(unsigned int i=3;i<numblk;i++){
+        //unsigned int start = clock();
         RAtoAi(A,R_arr,Ai_arr,i*BLOCK_SIZE); // RAtoAi(A,R_arr,Ai_arr,(i-1)*numblk);
+        //cout<<"RAtoAi took "<<clock()-start<<endl;
+        //start = clock();
         mgs(Ai_arr,NUMCOLS,R_arr,Q_arr);
+        //cout<<"mgs took "<<clock()-start<<endl;
     }
     
     //Convert R back to a vector:
