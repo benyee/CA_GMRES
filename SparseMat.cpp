@@ -152,7 +152,7 @@ vector< vector<double> > SparseMat::convertToFullMatrix(unsigned int numRows, un
     return outvec;
 }*/
 
-vector<double> SparseMat::smvp(vector<double> vec){
+vector<double> SparseMat::smvp(const vector<double> &vec){
     vector<double> outb;
     
     unsigned int j; //Tracks the index of A vector
