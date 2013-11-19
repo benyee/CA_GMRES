@@ -20,6 +20,8 @@
 
 using namespace std;
 
+class SparseMat;
+
 class Utilities{
 public:
     static vector<double> EMPTY_DOUBLE_VECTOR;
@@ -33,6 +35,7 @@ public:
     
     //Make a vector of zeros
     static vector<double> zeros(unsigned int rows);
+    static vector<unsigned int> unsignedint_zeros(unsigned int rows);
     //Make a matrix of zeros
     static vector< vector<double> > zeros(unsigned int rows, unsigned int cols);
     //Expand a vector vec until mat is of size rows
@@ -66,8 +69,7 @@ public:
     //Use a QR (mgs) factorization to solve least squares: (not optimal, but more stable)
     static vector<double> leastSquaresQR(const vector< vector<double> > &A,const vector<double> &y);
     //Use tall-skinny QR to factorize a matrix
-    static vector < vector <double> > tsQR(const vector< vector<double> > &A,unsigned int blksiz);
-    
+    static vector< vector<double> > tsQR(const vector< vector<double> > &A,unsigned int blksiz);
     
     //******************Fixed block size stuff***************************************
     static const unsigned int NUMCOLS = 60;
@@ -85,7 +87,7 @@ public:
     //Use TSQR where the array size is already determined
     static vector < vector <double> > tsQR_fixed(const vector< vector<double> > &A);
     //************************************************************************************************
-    
+
     
     //Classical GMRES algorithm:
     static struct GMRES_sol classicalGMRES(SparseMat* A, const vector<double> &b, double tol = 1.0E-6, unsigned int max_it = MAX_IT);

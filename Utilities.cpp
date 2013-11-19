@@ -46,6 +46,15 @@ vector<double> Utilities::zeros(unsigned int rows){
     }
     return out;
 }
+
+vector<unsigned int> Utilities::unsignedint_zeros(unsigned int rows){
+    vector<unsigned int> out;
+    for(unsigned int i = 0; i<rows; i++){
+        out.push_back(0);
+    }
+    return out;
+}
+
 vector < vector<double> > Utilities::zeros(unsigned int rows, unsigned int cols){
     vector< vector<double> > out;
     for(unsigned int i = 0; i<rows; i++){
