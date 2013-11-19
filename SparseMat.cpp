@@ -225,8 +225,6 @@ vector< vector<double> > SparseMat::matrixPowers(const vector<double> &v_0, /*co
         index[whichvector]++;
     }
     
-    cout<<"Checking took "<<checkTime<<endl;
-    cout<<"Computation took "<<compTime<<endl;
     return V;
 }
 
