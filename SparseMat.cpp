@@ -170,3 +170,63 @@ vector<double> SparseMat::smvp(const vector<double> &vec){
 }
 
 
+//Matrix powers:
+vector< vector<double> > SparseMat::matrixPowers(const vector<double> &v_0, /*const vector<double> &th, */unsigned int s){
+    unsigned int length = v_0.size();
+    
+    unsigned int start = clock();
+    vector<vector<double> > V = Utilities::zeros(length,s);
+    cout<<"This took "<<clock()-start<<endl;
+    
+    //which vector am I working on right now?
+    unsigned int whichvector = 0;
+    
+    vector<unsigned int> index = Utilities::unsignedint_zeros(s);
+    //How far along each vector has been computed
+    //i.e., vector i has been computed completely up to (not including) entry index[i]
+    //This is also the row of A that I shoudl be working on for that vector
+    
+    while(index[s-1]<length){
+        //cout<<"Checking first condition..."<<endl;
+        if(index[whichvector] >= length && whichvector < s){
+            whichvector++;
+            //cout<<"Increasing whichvector because I'm done with this vector"<<endl;
+            continue;
+        }
+        //cout<<"Checking second condition..."<<endl;
+        if(whichvector < s-1 && index[whichvector]>JA[ IA[ index[whichvector+1]+1 ]-1 ]){
+            whichvector++;
+            //cout<<"Increasing whichvector because I can move on!"<<endl;
+            continue;
+        }
+        //cout<<"Checking third condition..."<<endl;
+        if(whichvector > 0 && index[whichvector-1] <= JA[ IA[ index[whichvector]+1 ]-1 ]){
+            whichvector--;
+            //cout<<"Decreasing whichvector because I need to"<<endl;
+            continue;
+        }
+        //cout<<"Computing for whichvector = "<<whichvector<<" with row = "<<index[whichvector]<<endl;
+        
+        
+        if(whichvector){
+            double local = 0;
+            for(unsigned int j = IA[index[whichvector]]; j<IA[index[whichvector]+1];j++){
+                local += A[j]*V[JA[j]][whichvector-1];
+            }
+            V[index[whichvector]][whichvector] = local;
+        }else{
+            double local = 0;
+            for(unsigned int j = IA[index[whichvector]]; j<IA[index[whichvector]+1];j++){
+                //cout<<"Doing Aval = "<<Aval[j]<<" times "<<v_0[JA[j]]<<endl;
+                local += A[j]*v_0[JA[j]];
+            }
+            V[index[0]][0] = local;
+        }
+        index[whichvector]++;
+    }
+    
+    cout<<"Checking took "<<checkTime<<endl;
+    cout<<"Computation took "<<compTime<<endl;
+    return V;
+}
+

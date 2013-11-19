@@ -15,6 +15,8 @@
 #include <string>
 #include <vector>
 #include <stdlib.h>
+#include "Utilities.h"
+
 
 using namespace std;
 
@@ -36,6 +38,9 @@ public:
     //rowFirst = true means that [i][j] refers to the i-th row and j-th column
     
     vector<double> smvp(const vector<double> &vec);
+    
+    //Compute (A*v_0, A^2*v_0, ... A^s*v_0)
+    vector< vector<double> > matrixPowers(const vector<double> &v_0, /*const vector<double> &th, */unsigned int s);
     
     void print_matrix();
     

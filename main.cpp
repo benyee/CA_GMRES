@@ -87,7 +87,7 @@ int main ()
     
     SparseMat *bigmat = new SparseMat;
     bigmat->readFullMatrix("tallskinny.txt");
-    vector<vector<double> > bigmatfull = bigmat->convertToFullMatrix(100000,Utilities::NUMCOLS);
+    vector<vector<double> > bigmatfull = bigmat->convertToFullMatrix(1000,Utilities::NUMCOLS);
     unsigned int start = clock();
     cout<<"Running mgs..."<<clock()-start<<endl;
     Utilities::mgs(bigmatfull);
@@ -113,6 +113,22 @@ int main ()
     sample3vec.push_back(1);
     sample3vec.push_back(1);
     Utilities::printDVector(Utilities::matvec(nonsqmat,sample3vec));
+    
+    cout<<endl<<"Testing matrix powers kernel"<<endl;
+    SparseMat *secondsample = new SparseMat;
+    secondsample->readFullMatrix("example_matpow.txt");
+    vector<double> smvptest = Utilities::readVectorFile("example_matpowvec.txt");
+    start = clock();
+    vector<vector<double> > matpowtest =secondsample->matrixPowers(smvptest,15);
+    cout<<"matrix powers took "<<clock()-start<<endl;
+    
+    start = clock();
+    vector<vector<double> > matpowtest2 = Utilities::zeros(15,smvptest.size());
+    for(unsigned int i = 0; i<15;i++){
+        matpowtest2[i] =secondsample->smvp(smvptest);
+    }
+    cout<<"regular mat pow took "<<clock()-start<<endl;
+    
     
     
     
