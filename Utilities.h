@@ -15,12 +15,8 @@
 #include <vector>
 #include <cmath>
 #include <stdlib.h>
-#include "GMRES_sol.h"
-#include "SparseMat.h"
 
 using namespace std;
-
-class SparseMat;
 
 class Utilities{
 public:
@@ -28,7 +24,8 @@ public:
     Utilities();
     ~Utilities();
     
-    static const unsigned int MAX_IT = 100;
+    static const unsigned int s = 4;
+    static const unsigned int A_SIZE = 2500;
     
     static void printDVector(const vector<double> &vec); //Prints out a vector of doubles
     static void printFullMatrix(const vector< vector<double> > &mat, bool rowFirst = true); //Prints out a vector of double vectors
@@ -89,9 +86,6 @@ public:
     //************************************************************************************************
 
     
-    //Classical GMRES algorithm:
-    static struct GMRES_sol classicalGMRES(SparseMat* A, const vector<double> &b, double tol = 1.0E-6, unsigned int max_it = MAX_IT);
-    static struct GMRES_sol classicalGMRES(SparseMat* A, const vector<double> &b, vector<double> x, double tol = 1.0E-6, unsigned int max_it = MAX_IT);
     
     static double twoNorm(const vector<double> &x);
     static double infNorm(const vector<double> &x);
