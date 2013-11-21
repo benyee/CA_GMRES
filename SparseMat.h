@@ -16,12 +16,17 @@
 #include <vector>
 #include <stdlib.h>
 #include "Utilities.h"
+#include "GMRES_sol.h"
 
 
 using namespace std;
 
+class Utilities;
+
 class SparseMat{
 public:
+    static const unsigned int MAX_IT = 100;
+    
     SparseMat();
     ~SparseMat();
     
@@ -41,6 +46,12 @@ public:
     
     //Compute (A*v_0, A^2*v_0, ... A^s*v_0)
     vector< vector<double> > matrixPowers(const vector<double> &v_0, /*const vector<double> &th, */unsigned int s);
+    /*void matrixPowers_fixed(const vector<double> &v_0, double (&V)[Utilities::A_SIZE][Utilities::s]);
+    void matrixPowers_fixednorm(const vector<double> &v_0, double V[Utilities::A_SIZE][Utilities::s]);*/
+    
+    //Classical GMRES algorithm:
+    struct GMRES_sol classicalGMRES(const vector<double> &b, double tol = 1.0E-6, unsigned int max_it = MAX_IT);
+    struct GMRES_sol classicalGMRES(const vector<double> &b, vector<double> x, double tol = 1.0E-6, unsigned int max_it = MAX_IT);
     
     void print_matrix();
     
