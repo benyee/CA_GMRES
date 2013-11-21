@@ -375,7 +375,7 @@ vector < vector <double> > Utilities::tsQR_fixed(const vector < vector < double>
     
     // i = 3, R isn't a matrix yet
     double Ai_arr[NUMCOLS][BLOCK_SIZE2];
-    RAtoAi(A,R,Ai_arr,2*BLOCK_SIZE);
+    RAtoAi(A,R,Ai_arr,BLOCK_SIZE2);
     double R_arr[NUMCOLS][NUMCOLS];
     double Q_arr[NUMCOLS][BLOCK_SIZE2];
     mgs(Ai_arr,NUMCOLS,R_arr,Q_arr);
