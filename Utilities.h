@@ -24,8 +24,12 @@ public:
     Utilities();
     ~Utilities();
     
-    static const unsigned int s = 4;
+    static const unsigned int s = 10;
+    static const unsigned int RESTART = 60;
     static const unsigned int A_SIZE = 2500;
+    static const unsigned int NUMCOLS = 15;
+    static const unsigned int BLOCK_SIZE2 = 7200/NUMCOLS;
+    static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - NUMCOLS;
     
     static void printDVector(const vector<double> &vec); //Prints out a vector of doubles
     static void printFullMatrix(const vector< vector<double> > &mat, bool rowFirst = true); //Prints out a vector of double vectors
@@ -69,9 +73,6 @@ public:
     static vector< vector<double> > tsQR(const vector< vector<double> > &A,unsigned int blksiz);
     
     //******************Fixed block size stuff***************************************
-    static const unsigned int NUMCOLS = 15;
-    static const unsigned int BLOCK_SIZE2 = 7200/NUMCOLS;
-    static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - NUMCOLS;
     static void mgs(double At[NUMCOLS][BLOCK_SIZE2], unsigned int numcols, double R[NUMCOLS][NUMCOLS], double Q[NUMCOLS][BLOCK_SIZE2]);
     //static void mgs(vector<vector<double> > &At, unsigned int numcols, double Q[NUMCOLS][BLOCK_SIZE2], unsigned int ind);
     static double twoNorm(double x[BLOCK_SIZE2]);

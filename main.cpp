@@ -125,25 +125,25 @@ int main ()
         Utilities::printDVector(Utilities::matvec(nonsqmat,sample3vec));
     }
     
-    /*
+
+    
     if(Utilities::A_SIZE == 2500){
         cout<<endl<<"Testing matrix powers kernel"<<endl;
         SparseMat *secondsample = new SparseMat;
         secondsample->readFullMatrix("example_matpow.txt");
         vector<double> smvptest = Utilities::readVectorFile("example_matpowvec.txt");
+        vector<vector<double> > V = Utilities::zeros(Utilities::A_SIZE,Utilities::s);
+        secondsample->matrixPowersMapper();
         start = clock();
-        double V[Utilities::A_SIZE][Utilities::s];
-    //    vector<vector<double> > matpowtest =secondsample->matrixPowers_fixed(smvptest,15,2500,V);
-        secondsample->matrixPowers_fixed(smvptest,V);
+        secondsample->matrixPowers(smvptest,V);
         cout<<"matrix powers took "<<clock()-start<<endl;
+        vector<vector<double> > matpowtest2 = Utilities::zeros(15,smvptest.size());
         start = clock();
-        //vector<vector<double> > matpowtest2 = Utilities::zeros(15,smvptest.size());
-        //for(unsigned int i = 0; i<15;i++){
-        //    matpowtest2[i] =secondsample->smvp(smvptest);
-        //}
-        secondsample->matrixPowers_fixednorm(smvptest,V);
+        for(unsigned int i = 0; i<15;i++){
+            matpowtest2[i] =secondsample->smvp(smvptest);
+        }
         cout<<"regular mat pow took "<<clock()-start<<endl;
-    }else if(Utilities::A_SIZE==4){
+    }else if(Utilities::A_SIZE==4){/*
         cout<<endl<<"Testing matrix powers kernel"<<endl;
         double V[Utilities::A_SIZE][Utilities::s];
         //    vector<vector<double> > matpowtest =secondsample->matrixPowers_fixed(smvptest,15,2500,V);
@@ -163,8 +163,8 @@ int main ()
                 cout<<V[i][j]<<' ';
             }
             cout<<endl;
-        }
-    }*/
+        }*/
+    }
     
     
     

@@ -54,6 +54,7 @@ void SparseMat::readFullMatrix(string inputfile, char delim){
     }
     
     IA.push_back(counter); //Last entry of IA is the number of nonzeros
+    
 }
 
 void SparseMat::print_matrix(){
@@ -169,31 +170,20 @@ vector<double> SparseMat::smvp(const vector<double> &vec){
     return outb;
 }
 
-
-
-//Matrix powers:
-vector< vector<double> > SparseMat::matrixPowers(const vector<double> &v_0, /*const vector<double> &th, */unsigned int s){
-    unsigned int length = v_0.size();
-    
-    vector<vector<double> > V = Utilities::zeros(length,s);
-    
+void SparseMat::matrixPowersMapper(){
+    unsigned int counter = 0;
     //which vector am I working on right now?
     unsigned int whichvector = 0;
-    
-    vector<unsigned int> index = Utilities::unsignedint_zeros(s);
-    //How far along each vector has been computed
-    //i.e., vector i has been computed completely up to (not including) entry index[i]
-    //This is also the row of A that I shoudl be working on for that vector
-    
-    while(index[s-1]<length){
+    vector<unsigned int> index = Utilities::unsignedint_zeros(Utilities::s);
+    while(index[Utilities::s-1]<Utilities::A_SIZE){
         //cout<<"Checking first condition..."<<endl;
-        if(index[whichvector] >= length && whichvector < s){
+        if(index[whichvector] >= Utilities::A_SIZE && whichvector < Utilities::s){
             whichvector++;
-            //cout<<"Increasing whichvector because I'm done with this vector"<<endl;
+//            cout<<"Increasing whichvector because I'm done with vector "<<whichvector<<endl;
             continue;
         }
         //cout<<"Checking second condition..."<<endl;
-        if(whichvector < s-1 && index[whichvector]>JA[ IA[ index[whichvector+1]+1 ]-1 ]){
+        if(whichvector < Utilities::s-1 && index[whichvector]>JA[ IA[ index[whichvector+1]+1 ]-1 ]){
             whichvector++;
             //cout<<"Increasing whichvector because I can move on!"<<endl;
             continue;
@@ -206,25 +196,35 @@ vector< vector<double> > SparseMat::matrixPowers(const vector<double> &v_0, /*co
         }
         //cout<<"Computing for whichvector = "<<whichvector<<" with row = "<<index[whichvector]<<endl;
         
-        
+        map[counter][1] = index[whichvector];
+        map[counter][2] = whichvector;
+        index[whichvector]++;
+        counter++;
+    }
+}
+
+
+//Matrix powers:
+void SparseMat::matrixPowers(const vector<double> &v_0, vector<vector<double> > &V){
+    //which vector am I working on right now?
+    for(unsigned int i = 0; i<Utilities::A_SIZE*Utilities::s; i++){
+        unsigned int index = map[i][1];
+        unsigned int whichvector = map[i][2];
         if(whichvector){
             double local = 0;
-            for(unsigned int j = IA[index[whichvector]]; j<IA[index[whichvector]+1];j++){
+            for(unsigned int j = IA[index]; j<IA[index+1];j++){
                 local += A[j]*V[JA[j]][whichvector-1];
             }
-            V[index[whichvector]][whichvector] = local;
+            V[index][whichvector] = local;
         }else{
             double local = 0;
-            for(unsigned int j = IA[index[whichvector]]; j<IA[index[whichvector]+1];j++){
+            for(unsigned int j = IA[index]; j<IA[index+1];j++){
                 //cout<<"Doing Aval = "<<Aval[j]<<" times "<<v_0[JA[j]]<<endl;
                 local += A[j]*v_0[JA[j]];
             }
-            V[index[0]][0] = local;
+            V[index][0] = local;
         }
-        index[whichvector]++;
     }
-    
-    return V;
 }
 /*
 
@@ -321,59 +321,61 @@ struct GMRES_sol SparseMat::classicalGMRES(const vector<double> &b, double tol, 
 struct GMRES_sol SparseMat::classicalGMRES(const vector<double> &b, vector<double> x, double tol, unsigned int max_it){
     GMRES_sol sol;
     sol.converged = false;
-    vector< vector<double> > v;
     vector<double> res;
-    vector<double> y;
+    
+    unsigned int j;
+    unsigned int restart = 0;
     
     
-    vector< vector<double> > h;
-    
-    vector<double> r = Utilities::axpy(smvp(x),-1,b);
-    double beta = Utilities::twoNorm(r);
-    res.push_back(beta);
-    if(beta == 0){
-        sol.converged = true;
-        sol.num_its = 0;
-        sol.x = x;
-        sol.res =res;
-        return sol;
-    }
-    v.push_back(Utilities::axpy(r,1./beta));
-    
-    vector<double> x_0(x);
-    vector<double> e_1;
-    e_1.push_back(beta);
-    unsigned int j = 0;
-    while(j<max_it){
-        cout<<"Running iteration "<<j+1<<endl;
-        v.push_back(smvp(v[j]));
-        Utilities::expandMat(h,j+2,j+1);
-        for(unsigned int i = 0; i<=j;i++){
-            h[i][j] = Utilities::dotProd(v[j+1],v[i]);
-            v[j+1] = Utilities::axpy(v[i],-h[i][j],v[j+1]);
-        }
-        h[j+1][j] = Utilities::twoNorm(v[j+1]);
-        if(h[j+1][j] == 0){
-            sol.converged = true;
-            res.push_back(0);
-            break;
-        }
-        v[j+1] = Utilities::axpy(v[j+1],1.0/h[j+1][j]);
+    while(restart < max_it && !sol.converged){
+        restart++;
+        vector< vector<double> > h;
+        vector< vector<double> > v;
+        vector<double> y;
         
-        Utilities::expandVec(e_1,j+2);
-        y = Utilities::leastSquaresQR(h,e_1);
-        x = Utilities::axpy(x_0,Utilities::matvec(v,y,false));
-        res.push_back(Utilities::twoNorm(Utilities::axpy(smvp(x),-1,b)));
-        
-        j++;
-        if(res.back()<=tol){
+        vector<double> r = Utilities::axpy(smvp(x),-1,b);
+        double beta = Utilities::twoNorm(r);
+        res.push_back(beta);
+        if(beta == 0){
             sol.converged = true;
             break;
         }
+        v.push_back(Utilities::axpy(r,1./beta));
+        
+        vector<double> x_0(x);
+        vector<double> e_1;
+        e_1.push_back(beta);
+        j = 0;
+        //One thing to consider: Check every RESTART/s loops instead of every loop.
+        while(j<Utilities::RESTART){
+            cout<<"Running iteration "<<(restart-1)*Utilities::RESTART+j+1<<endl;
+            v.push_back(smvp(v[j]));
+            Utilities::expandMat(h,j+2,j+1);
+            for(unsigned int i = 0; i<=j;i++){
+                h[i][j] = Utilities::dotProd(v[j+1],v[i]);
+                v[j+1] = Utilities::axpy(v[i],-h[i][j],v[j+1]);
+            }
+            h[j+1][j] = Utilities::twoNorm(v[j+1]);
+            if(h[j+1][j] == 0){
+                sol.converged = true;
+                res.push_back(0);
+                break;
+            }
+            v[j+1] = Utilities::axpy(v[j+1],1.0/h[j+1][j]);
+            
+            Utilities::expandVec(e_1,j+2);
+            y = Utilities::leastSquaresQR(h,e_1);
+            x = Utilities::axpy(x_0,Utilities::matvec(v,y,false));
+            res.push_back(Utilities::twoNorm(Utilities::axpy(smvp(x),-1,b)));
+            j++;
+            if(res.back()<=tol){
+                sol.converged = true;
+                break;
+            }
+        }
     }
     
-    
-    sol.num_its = j;
+    sol.num_its = (restart-1)*Utilities::RESTART+j;
     sol.x = x;
     sol.res =res;
     return sol;
