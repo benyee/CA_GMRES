@@ -96,10 +96,24 @@ int main ()
     
     SparseMat *bigmat = new SparseMat;
     bigmat->readFullMatrix("tallskinny.txt");
-    vector<vector<double> > bigmatfull = bigmat->convertToFullMatrix(10000,Utilities::NUMCOLS);
+    vector<vector<double> > bigmatfull = bigmat->convertToFullMatrix(Utilities::A_SIZE,Utilities::s);
+    cout<<"Running mgs on a tall skinny matrix..."<<endl;
+    vector<vector<double> > Q(Utilities::s,vector<double>(Utilities::A_SIZE));
+    vector<vector<double> > R(Utilities::s,vector<double>(Utilities::s));
     unsigned int start = clock();
-    cout<<"Running mgs on a talls kinny matrix..."<<clock()-start<<endl;
     Utilities::mgs(bigmatfull);
+    if(Utilities::A_SIZE ==4){
+        Utilities::printFullMatrix(bigmatfull);
+        cout<<"----R----"<<endl;
+        for(unsigned int i = 0; i< Utilities::s; i++){
+            for(unsigned int j =0; j<Utilities::s;j++){
+                //cout<<R[i][j]<<'\t';
+            }
+            cout<<endl;
+        }
+        cout<<"----------"<<endl;
+        return 0;
+    }
     cout<<"Running tsQR..."<<clock()-start<<endl;
     unsigned int mgs = clock();
     Utilities::tsQR_fixed(bigmatfull);
@@ -125,25 +139,25 @@ int main ()
         Utilities::printDVector(Utilities::matvec(nonsqmat,sample3vec));
     }
     
-    /*
+
+    
     if(Utilities::A_SIZE == 2500){
         cout<<endl<<"Testing matrix powers kernel"<<endl;
         SparseMat *secondsample = new SparseMat;
         secondsample->readFullMatrix("example_matpow.txt");
         vector<double> smvptest = Utilities::readVectorFile("example_matpowvec.txt");
+        vector<vector<double> > V = Utilities::zeros(Utilities::A_SIZE,Utilities::s);
+        secondsample->matrixPowersMapper();
         start = clock();
-        double V[Utilities::A_SIZE][Utilities::s];
-    //    vector<vector<double> > matpowtest =secondsample->matrixPowers_fixed(smvptest,15,2500,V);
-        secondsample->matrixPowers_fixed(smvptest,V);
+        secondsample->matrixPowers(smvptest,V);
         cout<<"matrix powers took "<<clock()-start<<endl;
+        vector<vector<double> > matpowtest2 = Utilities::zeros(Utilities::s,smvptest.size());
         start = clock();
-        //vector<vector<double> > matpowtest2 = Utilities::zeros(15,smvptest.size());
-        //for(unsigned int i = 0; i<15;i++){
-        //    matpowtest2[i] =secondsample->smvp(smvptest);
-        //}
-        secondsample->matrixPowers_fixednorm(smvptest,V);
+        for(unsigned int i = 0; i<Utilities::s;i++){
+            matpowtest2[i] =secondsample->smvp(smvptest);
+        }
         cout<<"regular mat pow took "<<clock()-start<<endl;
-    }else if(Utilities::A_SIZE==4){
+    }else if(Utilities::A_SIZE==4){/*
         cout<<endl<<"Testing matrix powers kernel"<<endl;
         double V[Utilities::A_SIZE][Utilities::s];
         //    vector<vector<double> > matpowtest =secondsample->matrixPowers_fixed(smvptest,15,2500,V);
@@ -163,8 +177,8 @@ int main ()
                 cout<<V[i][j]<<' ';
             }
             cout<<endl;
-        }
-    }*/
+        }*/
+    }
     
     
     

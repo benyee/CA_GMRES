@@ -24,8 +24,11 @@ public:
     Utilities();
     ~Utilities();
     
-    static const unsigned int s = 4;
+    static const unsigned int s = 15;
+    static const unsigned int RESTART = 60;
     static const unsigned int A_SIZE = 2500;
+    static const unsigned int BLOCK_SIZE2 = 7200/s;
+    static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - s;
     
     static void printDVector(const vector<double> &vec); //Prints out a vector of doubles
     static void printFullMatrix(const vector< vector<double> > &mat, bool rowFirst = true); //Prints out a vector of double vectors
@@ -61,6 +64,8 @@ public:
     static pair<vector< vector<double> 	>, vector< vector<double> > > mgs(const vector< vector<double> > &mat);
     static pair<vector< vector<double> 	>, vector< vector<double> > > mgs(const vector< vector<double> > &mat, unsigned int numcols, vector<vector<double> > R, vector<vector<double> > Q);
     
+    static void mgs(const vector< vector<double> > &mat, vector<vector<double> > &R, vector<vector<double> > &Q);
+    
     //Use the normal equations to solve Least Squares:  (Large condition #, may result in inaccuracy)
     static vector<double> leastSquaresNormal(vector< vector<double> > A, vector<double> y);
     //Use a QR (mgs) factorization to solve least squares: (not optimal, but more stable)
@@ -69,18 +74,16 @@ public:
     static vector< vector<double> > tsQR(const vector< vector<double> > &A,unsigned int blksiz);
     
     //******************Fixed block size stuff***************************************
-    static const unsigned int NUMCOLS = 15;
-    static const unsigned int BLOCK_SIZE2 = 7200/NUMCOLS;
-    static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - NUMCOLS;
-    static void mgs(double At[NUMCOLS][BLOCK_SIZE2], unsigned int numcols, double R[NUMCOLS][NUMCOLS], double Q[NUMCOLS][BLOCK_SIZE2]);
+    static void mgs(double At[s][BLOCK_SIZE2], double R[s][s], double Q[s][BLOCK_SIZE2]);
     //static void mgs(vector<vector<double> > &At, unsigned int numcols, double Q[NUMCOLS][BLOCK_SIZE2], unsigned int ind);
-    static double twoNorm(double x[BLOCK_SIZE2]);
-    static double dotProd(double x[BLOCK_SIZE2], double y[BLOCK_SIZE2]);
-    static void axpy(double x[BLOCK_SIZE2], double y[BLOCK_SIZE2],double out[BLOCK_SIZE2]);
-    static void axpy(double x[BLOCK_SIZE2], double a, double out[BLOCK_SIZE2]);
-    static void axpy(double x[BLOCK_SIZE2], double a, double y[BLOCK_SIZE2],double out[BLOCK_SIZE2]);
-    static void RAtoAi(const vector<vector<double> >  &A, vector<vector<double> >  R, double Ai[NUMCOLS][BLOCK_SIZE2], double ind1);
-    static void RAtoAi(const vector<vector<double> >  &A, double R[NUMCOLS][NUMCOLS], double Ai[NUMCOLS][BLOCK_SIZE2], double ind1);
+//    static void mgs(const vector< vector<double> > &mat,  double R[s][s], double Q[s][A_SIZE]);
+    static double twoNorm(double x[],unsigned int len = BLOCK_SIZE2);
+    static double dotProd(double x[], double y[],unsigned int len = BLOCK_SIZE2);
+    static void axpy(double x[], double y[],double out[],unsigned int len = BLOCK_SIZE2);
+    static void axpy(double x[], double a, double out[],unsigned int len = BLOCK_SIZE2);
+    static void axpy(double x[], double a, double y[],double out[],unsigned int len = BLOCK_SIZE2);
+    static void RAtoAi(const vector<vector<double> >  &A, vector<vector<double> >  R, double Ai[s][BLOCK_SIZE2], double ind1);
+    static void RAtoAi(const vector<vector<double> >  &A, double R[s][s], double Ai[s][BLOCK_SIZE2], double ind1);
     //Use TSQR where the array size is already determined
     static vector < vector <double> > tsQR_fixed(const vector< vector<double> > &A);
     //************************************************************************************************
