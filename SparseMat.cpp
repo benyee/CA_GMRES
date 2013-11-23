@@ -158,11 +158,9 @@ vector<double> SparseMat::smvp(const vector<double> &vec){
     
     unsigned int j; //Tracks the index of A vector
     for(unsigned int row = 0; row<IA.size()-1; row++){
-        j = IA[row];
         double sum = 0;
-        while(j < IA[row+1]){
+        for(unsigned int j = IA[row]; j<IA[row+1];j++){
             sum += A[j]*vec[JA[j]];
-            j++;
         }
         outb.push_back(sum);
     }
