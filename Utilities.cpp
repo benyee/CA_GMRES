@@ -387,64 +387,65 @@ vector < vector <double> > Utilities::tsQR_fixed(const vector < vector < double>
     pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Ai);
     vector < vector <double> > R = QR.second;
     
-    
-    // i = 2, since Q isn't the proper size yet
-    Ai = subMatrix(A, make_pair(BLOCK_SIZE,2*BLOCK_SIZE), make_pair(0,s));
-    Ai = stackMat(R,Ai);
-    QR = mgs(Ai);
-    R = QR.second;
-    /*
-    unsigned int start = clock();
-    vector < vector<double> > At = transpose(A);
-    cout<<"transpose took "<<clock()-start<<endl;
-    
-    for(unsigned int i = 0; i<NUMCOLS;i++){
-        for(unsigned int j = 0; j<NUMCOLS;j++){
-            At[i][j] = R[j][i];
+    if(numblk > 1){
+        // i = 2, since Q isn't the proper size yet
+        Ai = subMatrix(A, make_pair(BLOCK_SIZE,2*BLOCK_SIZE), make_pair(0,s));
+        Ai = stackMat(R,Ai);
+        QR = mgs(Ai);
+            R = QR.second;
+        /*
+        unsigned int start = clock();
+        vector < vector<double> > At = transpose(A);
+        cout<<"transpose took "<<clock()-start<<endl;
+        
+        for(unsigned int i = 0; i<NUMCOLS;i++){
+            for(unsigned int j = 0; j<NUMCOLS;j++){
+                At[i][j] = R[j][i];
+            }
         }
-    }
-    double Q_arr[NUMCOLS][BLOCK_SIZE2];
-    cout<<"numblk is "<<numblk<<endl;
-    for(unsigned int i = 2; i<numblk;i++){
-       // start = clock();
-        mgs(At,NUMCOLS,Q_arr,i*BLOCK_SIZE-NUMCOLS);
-        //cout<<"iteration took "<<clock()-start<<endl;
-    }
-    
-    
-    for(unsigned int i = 0; i<NUMCOLS;i++){
-        for(unsigned int j = 0; j<NUMCOLS;j++){
-            R[j][i] = At[i][j];
+        double Q_arr[NUMCOLS][BLOCK_SIZE2];
+        cout<<"numblk is "<<numblk<<endl;
+        for(unsigned int i = 2; i<numblk;i++){
+           // start = clock();
+            mgs(At,NUMCOLS,Q_arr,i*BLOCK_SIZE-NUMCOLS);
+            //cout<<"iteration took "<<clock()-start<<endl;
         }
-    }*/
-    
-    // i = 3, R isn't a matrix yet
-    double Ai_arr[s][BLOCK_SIZE2];
-    RAtoAi(A,R,Ai_arr,BLOCK_SIZE2);
-    double R_arr[s][s];
-    double Q_arr[s][BLOCK_SIZE2];
-    mgs(Ai_arr,R_arr,Q_arr);
-
-    // Q and R are the right format i = 4 and beyond
-    for(unsigned int i=3;i<numblk;i++){
-        //unsigned int start = clock();
-        RAtoAi(A,R_arr,Ai_arr,i*BLOCK_SIZE); // RAtoAi(A,R_arr,Ai_arr,(i-1)*numblk);
-        //cout<<"RAtoAi took "<<clock()-start<<endl;
-        //start = clock();
+        
+        
+        for(unsigned int i = 0; i<NUMCOLS;i++){
+            for(unsigned int j = 0; j<NUMCOLS;j++){
+                R[j][i] = At[i][j];
+            }
+        }*/
+        
+        // i = 3, R isn't a matrix yet
+        double Ai_arr[s][BLOCK_SIZE2];
+        RAtoAi(A,R,Ai_arr,BLOCK_SIZE2);
+        double R_arr[s][s];
+        double Q_arr[s][BLOCK_SIZE2];
         mgs(Ai_arr,R_arr,Q_arr);
-        //cout<<"mgs took "<<clock()-start<<endl;
-    }
-    
-    //Convert R back to a vector:
-    for(unsigned int i = 0; i<s;i++){
-        for(unsigned int j = 0; j<s;j++){
-            R[i][j] = R_arr[i][j];
+
+        // Q and R are the right format i = 4 and beyond
+        for(unsigned int i=3;i<numblk;i++){
+            //unsigned int start = clock();
+            RAtoAi(A,R_arr,Ai_arr,i*BLOCK_SIZE); // RAtoAi(A,R_arr,Ai_arr,(i-1)*numblk);
+            //cout<<"RAtoAi took "<<clock()-start<<endl;
+            //start = clock();
+            mgs(Ai_arr,R_arr,Q_arr);
+            //cout<<"mgs took "<<clock()-start<<endl;
         }
-    }
-    //Convert Q back to a vector:
-    for(unsigned int i = 0; i<s;i++){
-        for(unsigned int j = 0; j<BLOCK_SIZE2;j++){
-            QR.first[i][j] = Q_arr[i][j];
+        
+        //Convert R back to a vector:
+        for(unsigned int i = 0; i<s;i++){
+            for(unsigned int j = 0; j<s;j++){
+                R[i][j] = R_arr[i][j];
+            }
+        }
+        //Convert Q back to a vector:
+        for(unsigned int i = 0; i<s;i++){
+            for(unsigned int j = 0; j<BLOCK_SIZE2;j++){
+                QR.first[i][j] = Q_arr[i][j];
+            }
         }
     }
     
