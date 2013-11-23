@@ -26,7 +26,7 @@ public:
     
     static const unsigned int s = 15;
     static const unsigned int RESTART = 60;
-    static const unsigned int A_SIZE = 100000;
+    static const unsigned int A_SIZE = 2500;
     static const unsigned int BLOCK_SIZE2 = 7200/s;
     static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - s;
     

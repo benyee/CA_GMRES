@@ -96,10 +96,24 @@ int main ()
     
     SparseMat *bigmat = new SparseMat;
     bigmat->readFullMatrix("tallskinny.txt");
-    vector<vector<double> > bigmatfull = bigmat->convertToFullMatrix(10000,Utilities::NUMCOLS);
+    vector<vector<double> > bigmatfull = bigmat->convertToFullMatrix(Utilities::A_SIZE,Utilities::s);
+    cout<<"Running mgs on a tall skinny matrix..."<<endl;
+    vector<vector<double> > Q(Utilities::s,vector<double>(Utilities::A_SIZE));
+    vector<vector<double> > R(Utilities::s,vector<double>(Utilities::s));
     unsigned int start = clock();
-    cout<<"Running mgs on a talls kinny matrix..."<<clock()-start<<endl;
     Utilities::mgs(bigmatfull);
+    if(Utilities::A_SIZE ==4){
+        Utilities::printFullMatrix(bigmatfull);
+        cout<<"----R----"<<endl;
+        for(unsigned int i = 0; i< Utilities::s; i++){
+            for(unsigned int j =0; j<Utilities::s;j++){
+                //cout<<R[i][j]<<'\t';
+            }
+            cout<<endl;
+        }
+        cout<<"----------"<<endl;
+        return 0;
+    }
     cout<<"Running tsQR..."<<clock()-start<<endl;
     unsigned int mgs = clock();
     Utilities::tsQR_fixed(bigmatfull);
@@ -137,9 +151,9 @@ int main ()
         start = clock();
         secondsample->matrixPowers(smvptest,V);
         cout<<"matrix powers took "<<clock()-start<<endl;
-        vector<vector<double> > matpowtest2 = Utilities::zeros(15,smvptest.size());
+        vector<vector<double> > matpowtest2 = Utilities::zeros(Utilities::s,smvptest.size());
         start = clock();
-        for(unsigned int i = 0; i<15;i++){
+        for(unsigned int i = 0; i<Utilities::s;i++){
             matpowtest2[i] =secondsample->smvp(smvptest);
         }
         cout<<"regular mat pow took "<<clock()-start<<endl;
