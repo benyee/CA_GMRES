@@ -44,8 +44,13 @@ public:
     vector<double> smvp(const vector<double> &vec);
     
     //Compute (A*v_0, A^2*v_0, ... A^s*v_0)
+    void regMatrixPowers(vector<vector<double> > &V, const unsigned int ind[2] = {0,Utilities::s});
     void matrixPowersMapper();
     void matrixPowers(const vector<double> &v_0, /*const vector<double> &th, */vector<vector<double> > &V);
+    //Takes in two inputs.  v_0 is the starting vector.  V is the matrix to store the matrix powers in.
+    
+    
+    
     /*void matrixPowers_fixed(const vector<double> &v_0, double (&V)[Utilities::A_SIZE][Utilities::s]);
     void matrixPowers_fixednorm(const vector<double> &v_0, double V[Utilities::A_SIZE][Utilities::s]);*/
     

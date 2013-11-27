@@ -168,6 +168,15 @@ vector<double> SparseMat::smvp(const vector<double> &vec){
     return outb;
 }
 
+void SparseMat::regMatrixPowers(vector<vector<double> > &V, const unsigned int ind[2]){
+    if(ind[0] == 0){
+        return;
+    }
+    for(unsigned int i = ind[0]; i<ind[1];i++){
+        V[i] = smvp(V[i-1]);
+    }
+}
+
 void SparseMat::matrixPowersMapper(){
     unsigned int counter = 0;
     //which vector am I working on right now?
