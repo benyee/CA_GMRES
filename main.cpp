@@ -102,7 +102,7 @@ int main ()
     vector<vector<double> > R(Utilities::s,vector<double>(Utilities::s));
     unsigned int start = clock();
     Utilities::mgs(bigmatfull);
-    if(Utilities::A_SIZE ==4){
+    if(Utilities::A_SIZE ==4){/*
         Utilities::printFullMatrix(bigmatfull);
         cout<<"----R----"<<endl;
         for(unsigned int i = 0; i< Utilities::s; i++){
@@ -111,13 +111,13 @@ int main ()
             }
             cout<<endl;
         }
-        cout<<"----------"<<endl;
-        return 0;
+        cout<<"----------"<<endl;*/
+    }else{
+        cout<<"Running tsQR..."<<clock()-start<<endl;
+        unsigned int mgs = clock();
+        Utilities::tsQR_fixed(bigmatfull);
+        cout<<"Done!"<<clock()-mgs<<endl;
     }
-    cout<<"Running tsQR..."<<clock()-start<<endl;
-    unsigned int mgs = clock();
-    Utilities::tsQR_fixed(bigmatfull);
-    cout<<"Done!"<<clock()-mgs<<endl;
     
     if(fullDiagnosis){
         cout<<endl<<"Testing matvec for non-square matrices"<<endl;
@@ -146,6 +146,12 @@ int main ()
         SparseMat *secondsample = new SparseMat;
         secondsample->readFullMatrix("example_matpow.txt");
         vector<double> smvptest = Utilities::readVectorFile("example_matpowvec.txt");
+        vector<vector<double> > V = Utilities::zeros(Utilities::s+1,Utilities::A_SIZE);
+        V[0] = smvptest;
+        unsigned int ind[2] = {1, Utilities::s+1};
+        secondsample->regMatrixPowers(V,ind);
+        Utilities::tsQR_col(V);
+        /*
         vector<vector<double> > V = Utilities::zeros(Utilities::A_SIZE,Utilities::s);
         secondsample->matrixPowersMapper();
         start = clock();
@@ -157,28 +163,18 @@ int main ()
             matpowtest2[i] =secondsample->smvp(smvptest);
         }
         cout<<"regular mat pow took "<<clock()-start<<endl;
-    }else if(Utilities::A_SIZE==4){/*
-        cout<<endl<<"Testing matrix powers kernel"<<endl;
-        double V[Utilities::A_SIZE][Utilities::s];
-        //    vector<vector<double> > matpowtest =secondsample->matrixPowers_fixed(smvptest,15,2500,V);
-        sample->matrixPowers_fixed(samplevec,V);
-        cout<<endl;
-        for(unsigned int i = 0; i< Utilities::A_SIZE;i++){
-            for(unsigned int j = 0; j<Utilities::s;j++){
-                cout<<V[i][j]<<'\t';
-            }
-            cout<<endl;
-        }
-        cout<<"Normal version of matrix powers.."<<endl;
-        sample->matrixPowers_fixednorm(samplevec,V);
-        cout<<endl;
-        for(unsigned int i = 0; i< Utilities::A_SIZE;i++){
-            for(unsigned int j = 0; j<Utilities::s;j++){
-                cout<<V[i][j]<<' ';
-            }
-            cout<<endl;
-        }*/
-    }
+         */
+    }else if(Utilities::A_SIZE==4){    }
+    
+    //Test matrix powers:
+    cout<<endl<<endl<<endl;
+    cout<<"Testing straightfoward, column-based matrix powers..."<<endl;
+    vector<vector<double> > V = Utilities::zeros(6,4);
+    V[0] = samplevec;
+    unsigned int ind[2] = {1,6};
+    sample->regMatrixPowers(V,ind);
+    Utilities::printFullMatrix(V);
+    
     
     
     

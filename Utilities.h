@@ -66,7 +66,7 @@ public:
     
     
     static pair<vector< vector<double> 	>, vector< vector<double> > > mgs_col(const vector< vector<double> > &mat);
-    static pair<vector< vector<double> 	>, vector< vector<double> > > mgs_col(const vector< vector<double> > &mat, unsigned int numcols, vector<vector<double> > R, vector<vector<double> > Q);
+    static pair<vector< vector<double> 	>, vector< vector<double> > > mgs_col(vector< vector<double> > At, unsigned int numcols, vector<vector<double> > R, vector<vector<double> > Q);
     
     static void mgs(const vector< vector<double> > &mat, vector<vector<double> > &R, vector<vector<double> > &Q);
     

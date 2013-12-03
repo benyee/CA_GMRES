@@ -248,7 +248,7 @@ pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs_col(con
     return mgs_col(mat, numcols,R,Q);
 }
 
-pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs_col(const vector< vector<double> > &At, unsigned int numcols, vector<vector<double> > R, vector<vector<double> > Q){
+pair<vector< vector<double> >, vector< vector<double> > > Utilities::mgs_col(vector< vector<double> > At, unsigned int numcols, vector<vector<double> > R, vector<vector<double> > Q){
     for(unsigned int i = 0; i<numcols;i++){
         R[i][i] = twoNorm(At[i]);
         if (R[i][i]==0){
