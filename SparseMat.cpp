@@ -94,6 +94,7 @@ vector< vector<double> > SparseMat::convertToFullMatrix(unsigned int numRows, un
                 }
             }
             outvec.push_back(row);
+            A_counter = IA[i+1];
         }
         return outvec;
     }
