@@ -95,8 +95,9 @@ public:
     static void RAtoAi_col(const vector<vector<double> >  &A, double R[s][s], double Ai[s][BLOCK_SIZE2], double ind1);
     static vector < vector <double> > tsQR_col(const vector< vector<double> > &A);
     //************************************************************************************************
-
     
+    static void matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB);
+    static void matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max);
     
     static double twoNorm(const vector<double> &x);
     static double infNorm(const vector<double> &x);

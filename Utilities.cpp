@@ -723,3 +723,31 @@ double Utilities::infNorm(const vector<double> &x){
 double Utilities::twoNorm(const vector<double> &x){
     return sqrt(dotProd(x,x));
 }
+
+/************ MATRIX-MATRIX MULTIPLY****************/
+void Utilities::matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB){
+    unsigned int indrowAB[2] = {0,AB.size()};
+    unsigned int indcolAB[2] = {0,AB[0].size()};
+    unsigned int shift[2] = {0,0};
+    matmat(A,B,AB,shift,shift,indrowAB,indcolAB,B.size());
+    
+}
+
+void Utilities::matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max){
+    
+    for(unsigned int i = indrowAB[0]; i<indrowAB[1];i++){
+        unsigned int A_row = i-indrowAB[0]+shiftA[0];
+        for(unsigned int j = indcolAB[0]; j<indcolAB[1];j++){
+            unsigned int B_col = j-indcolAB[0]+shiftB[1];
+            
+            AB[i][j] = 0;
+            for(unsigned m = 0; m<m_max;m++){
+                AB[i][j] += A[A_row][m+shiftA[1]]*B[m+shiftB[0]][B_col];
+            }
+            
+        }
+    }
+    
+}
+
+

@@ -166,17 +166,40 @@ int main ()
          */
     }else if(Utilities::A_SIZE==4){    }
     
-    //Test matrix powers:
-    cout<<endl<<endl<<endl;
-    cout<<"Testing straightfoward, column-based matrix powers..."<<endl;
-    vector<vector<double> > V = Utilities::zeros(6,4);
-    V[0] = samplevec;
-    unsigned int ind[2] = {1,6};
-    sample->regMatrixPowers(V,ind);
-    Utilities::printFullMatrix(V);
+    if(fullDiagnosis){
+        //Test matrix powers:
+        cout<<endl<<endl<<endl;
+        cout<<"Testing straightfoward, column-based matrix powers..."<<endl;
+        vector<vector<double> > V = Utilities::zeros(6,4);
+        V[0] = samplevec;
+        unsigned int ind[2] = {1,6};
+        sample->regMatrixPowers(V,ind);
+        Utilities::printFullMatrix(V);
+        
+        //Test matrix powers:
+        cout<<endl<<endl<<endl;
+        cout<<"Testing matrix-matrix multiply: "<<endl;
+        SparseMat *secondsample = new SparseMat;
+        secondsample->readFullMatrix("example_matpow.txt");
+        vector<vector<double> > A = secondsample->convertToFullMatrix(4,4);
+        vector<vector<double> > B = secondsample->convertToFullMatrix(4,4);
+        vector<vector<double> > AB = secondsample->convertToFullMatrix(4,4);
+        secondsample->print_matrix();
+        Utilities::printFullMatrix(A);
+        
+        unsigned int indrowAB[2] = {1,3};
+        unsigned int indcolAB[2] = {2,4};
+        unsigned int ABsize[2] = {1,3};
+        unsigned int shiftA[2] = {0,1};
+        unsigned int shiftB[2] = {1,0};
+        unsigned int m_max = 2;
+        Utilities::matmat(A,B,AB,shiftA, shiftB,indrowAB,indcolAB,m_max);
+        Utilities::printFullMatrix(AB);
+    }
     
     
     
+    //
     
     cout << "Goodbye world!"<<endl;
     return 0;
