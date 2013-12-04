@@ -94,32 +94,33 @@ int main ()
     sol.print();
     
     
-    SparseMat *bigmat = new SparseMat;
-    bigmat->readFullMatrix("tallskinny.txt");
-    vector<vector<double> > bigmatfull = bigmat->convertToFullMatrix(Utilities::A_SIZE,Utilities::s);
-    cout<<"Running mgs on a tall skinny matrix..."<<endl;
-    vector<vector<double> > Q(Utilities::s,vector<double>(Utilities::A_SIZE));
-    vector<vector<double> > R(Utilities::s,vector<double>(Utilities::s));
-    unsigned int start = clock();
-    Utilities::mgs(bigmatfull);
-    if(Utilities::A_SIZE ==4){/*
-        Utilities::printFullMatrix(bigmatfull);
-        cout<<"----R----"<<endl;
-        for(unsigned int i = 0; i< Utilities::s; i++){
-            for(unsigned int j =0; j<Utilities::s;j++){
-                //cout<<R[i][j]<<'\t';
-            }
-            cout<<endl;
-        }
-        cout<<"----------"<<endl;*/
-    }else{
-        cout<<"Running tsQR..."<<clock()-start<<endl;
-        unsigned int mgs = clock();
-        Utilities::tsQR_fixed(bigmatfull);
-        cout<<"Done!"<<clock()-mgs<<endl;
-    }
-    
     if(fullDiagnosis){
+        //This block of code may be irrelevant for future use.
+        SparseMat *bigmat = new SparseMat;
+        bigmat->readFullMatrix("tallskinny.txt");
+        vector<vector<double> > bigmatfull = bigmat->convertToFullMatrix(Utilities::A_SIZE,Utilities::s);
+        cout<<"Running mgs on a tall skinny matrix..."<<endl;
+        vector<vector<double> > Q(Utilities::s,vector<double>(Utilities::A_SIZE));
+        vector<vector<double> > R(Utilities::s,vector<double>(Utilities::s));
+        unsigned int start = clock();
+        Utilities::mgs(bigmatfull);
+        if(Utilities::A_SIZE ==4){/*
+            Utilities::printFullMatrix(bigmatfull);
+            cout<<"----R----"<<endl;
+            for(unsigned int i = 0; i< Utilities::s; i++){
+                for(unsigned int j =0; j<Utilities::s;j++){
+                    //cout<<R[i][j]<<'\t';
+                }
+                cout<<endl;
+            }
+            cout<<"----------"<<endl;*/
+        }else{
+            cout<<"Running tsQR..."<<clock()-start<<endl;
+            unsigned int mgs = clock();
+            Utilities::tsQR_fixed(bigmatfull);
+            cout<<"Done!"<<clock()-mgs<<endl;
+        }
+    
         cout<<endl<<"Testing matvec for non-square matrices"<<endl;
         vector<vector<double> > nonsqmat;
         vector<double> temp;
@@ -166,16 +167,24 @@ int main ()
          */
     }else if(Utilities::A_SIZE==4){    }
     
+    
+    //Test matrix powers:
+    cout<<endl<<endl<<endl;
+    cout<<"Testing straightfoward, column-based matrix powers..."<<endl;
+    SparseMat *ebe = new SparseMat();
+    ebe->readFullMatrix("thbyth.txt");
+    vector<double> eV(samplevec);
+    Utilities::expandVec(eV,Utilities::A_SIZE); //Expand to make it a 1x8 vector
+    Utilities::printFullMatrix(ebe->convertToFullMatrix());
+    vector<vector<double> > V = Utilities::zeros(Utilities::s,Utilities::A_SIZE);
+    V[0] = eV;
+    unsigned int ind[2] = {1,Utilities::s};
+    ebe->regMatrixPowers(V,ind);
+    Utilities::printFullMatrix(V);
+    
+    Utilities::printFullMatrix(Utilities::tsQR_col(V));
+    
     if(fullDiagnosis){
-        //Test matrix powers:
-        cout<<endl<<endl<<endl;
-        cout<<"Testing straightfoward, column-based matrix powers..."<<endl;
-        vector<vector<double> > V = Utilities::zeros(6,4);
-        V[0] = samplevec;
-        unsigned int ind[2] = {1,6};
-        sample->regMatrixPowers(V,ind);
-        Utilities::printFullMatrix(V);
-        
         //Test matrix powers:
         cout<<endl<<endl<<endl;
         cout<<"Testing matrix-matrix multiply: "<<endl;

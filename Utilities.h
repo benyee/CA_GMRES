@@ -23,11 +23,11 @@ public:
     static vector<double> EMPTY_DOUBLE_VECTOR;
     Utilities();
     ~Utilities();
-    
-    static const unsigned int s = 15; // How many vectors to compute at a time for matrix powers.  Also determines the width of your TSQR matrix (I think...)
+
+    static const unsigned int s = 3; // How many vectors to compute at a time for matrix powers.  Also determines the width of your TSQR matrix (I think...)
     static const unsigned int RESTART = 60; //This doesn't do anything for now.
-    static const unsigned int A_SIZE = 2500;  //This is the size of your matrix
-    static const unsigned int BLOCK_SIZE2 = 7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
+    static const unsigned int A_SIZE = 13;//2500;  //This is the size of your matrix
+    static const unsigned int BLOCK_SIZE2 = 6;//7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
     static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - s; //Block size for TSQR
     
     static void printDVector(const vector<double> &vec); //Prints out a vector of doubles
