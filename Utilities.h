@@ -24,10 +24,10 @@ public:
     Utilities();
     ~Utilities();
 
-    static const unsigned int s = 30; // How many vectors to compute at a time for matrix powers.  Also determines the width of your TSQR matrix (I think...)
+    static const unsigned int s = 3; // How many vectors to compute at a time for matrix powers.  Also determines the width of your TSQR matrix (I think...)
     static const unsigned int RESTART = 60; //This doesn't do anything for now.
-    static const unsigned int A_SIZE = 2500;  //This is the size of your matrix
-    static const unsigned int BLOCK_SIZE2 = 7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
+    static const unsigned int A_SIZE = 16;  //This is the size of your matrix
+    static const unsigned int BLOCK_SIZE2 = 6;//7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
     static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - s; //Block size for TSQR
     
     static void printDVector(const vector<double> &vec); //Prints out a vector of doubles
@@ -111,7 +111,7 @@ public:
     }
     static vector < vector<double> > givens_rot(vector< vector<double> > &H, unsigned int numrows, unsigned int numcols);
     //Applies the rotations r[startind:endind-1].  If endind = 0, then it applies all rotations r.
-    static void apply_rot(vector<double> z,const vector<vector<double> > &r,unsigned int startind = 0,unsigned int endind = 0);
+    static void apply_rot(vector<double> &z,const vector<vector<double> > &r,unsigned int startind = 0,unsigned int endind = 0);
     static void apply_rot(vector<vector<double> > &H,const vector<vector<double> > &r,unsigned int startind = 0,unsigned int endind = 0, unsigned int numcols = 0);
     
     static double twoNorm(const vector<double> &x);
