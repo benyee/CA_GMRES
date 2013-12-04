@@ -212,11 +212,38 @@ int main ()
     Utilities::tsQR_col(V,Q,Qtemp);
     cout<<"TSQR took "<<clock()-i<<" seconds"<<endl;
     
+    cout<<endl;
+    cout<<endl;
+    cout<<endl;
+    cout<<"Testing Givens rotations..."<<endl;
+    SparseMat *hess = new SparseMat();
+    hess->readFullMatrix("hessenberg.txt");
+    vector<vector<double> > hessenberg = hess->convertToFullMatrix(Utilities::A_SIZE+1,Utilities::A_SIZE);
+    vector<vector<double> > hessenberg2(hessenberg);
+    cout<<hessenberg.size()<<endl;
+    cout<<hessenberg[0].size()<<endl;
+    
+    cout<<"hess1"<<endl;
+    Utilities::printFullMatrix(hessenberg);
+    
+    vector<vector<double> > r = Utilities::givens_rot(hessenberg);
+    Utilities::apply_rot(hessenberg2,r);
+    Utilities::printDVector(V[0]);
+    V[0].push_back(0);
+    Utilities::apply_rot(V[0],r);
+    
+    cout<<"hess1mod"<<endl;
+    Utilities::printFullMatrix(hessenberg);
+    cout<<"hess2mod"<<endl;
+    Utilities::printFullMatrix(hessenberg2);
+    Utilities::printDVector(V[0]);
+    
+    
     if(fullDiagnosis){
         //Test matrix powers:
         cout<<endl<<endl<<endl;
         cout<<"Testing matrix-matrix multiply: "<<endl;
-        SparseMat *secondsample = new SparseMat;
+        SparseMat *secondsample = new SparseMat();
         secondsample->readFullMatrix("example_matpow.txt");
         vector<vector<double> > A = secondsample->convertToFullMatrix(4,4);
         vector<vector<double> > B = secondsample->convertToFullMatrix(4,4);

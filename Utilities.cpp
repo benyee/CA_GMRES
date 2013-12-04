@@ -14,7 +14,7 @@ Utilities::Utilities(){
 void Utilities::printDVector(const vector<double> &vec){
     cout<<"[ ";
     for(unsigned int i = 0; i < vec.size(); i++){
-        cout<<vec[i]<<" ";
+        cout<<vec[i]<<'\t';
     }
     cout<<"]"<<endl;
 }
@@ -31,7 +31,7 @@ void Utilities::printFullMatrix(const vector< vector<double> > &mat, bool rowFir
         for(unsigned int i = 0; i < mat.back().size();i++){
             cout<<"[ ";
             for(unsigned int j = 0; j < mat.size();j++){
-                cout<<mat[j][i]<<" ";
+                cout<<mat[j][i]<<'\t';
             }
             cout<<"] "<<endl;
         }
@@ -748,10 +748,11 @@ vector < vector <double> > Utilities::tsQR_col(const vector < vector < double> >
         
         // Q and R are the right format i = 4 and beyond
         for(unsigned int i=3;i<numblk;i++){
+            int start = clock();
             RAtoAi_col(A,R_arr,Ai_arr,i*BLOCK_SIZE);
             mgs(Ai_arr,R_arr,Q_arr);
+            cout<<"time0 = "<<clock()-start<<endl;
             
-            int start = clock();
             indrowAB[1] = i*BLOCK_SIZE;
             matmat(Q,Q_arr,Qtemp,shiftA,shiftB,indrowAB,indcolAB,s);
             cout<<"time1 = "<<clock()-start<<endl;
@@ -813,23 +814,26 @@ vector < vector<double> > Utilities::givens_rot(vector< vector<double> > &H, uns
     vector <vector<double> > r = Utilities::zeros(numrows-1,2);
     for(unsigned int i = 0; i<numrows-1;i++){
         double d = sqrt(H[i][i]*H[i][i]+H[i+1][i]*H[i+1][i]);
-        r[i][1] = H[i][i]/d;
-        r[i][2] = H[i+1][i]/d;
+        r[i][0] = H[i][i]/d;
+        r[i][1] = H[i+1][i]/d;
         
         for(unsigned int j = 0; j<numcols;j++){
-            H[i][j] = H[i][j]*r[i][1]+H[i+1][j]*r[i][2];
-            H[i+1][j] = -H[i][j]*r[i][2]+H[i+1][j]*r[i][1];
+            double temp = H[i][j]*r[i][0]+H[i+1][j]*r[i][1];
+            H[i+1][j] = -H[i][j]*r[i][1]+H[i+1][j]*r[i][0];
+            H[i][j] = temp;
         }
     }
+    return r;
 }
 
-void Utilities::apply_rot(vector<double> z,const vector<vector<double> > &r,unsigned int startind ,unsigned int endind ){
+void Utilities::apply_rot(vector<double> &z,const vector<vector<double> > &r,unsigned int startind ,unsigned int endind ){
     if(endind == 0){
         endind = r.size();
     }
     for(unsigned int i = startind; i<endind;i++){
-        z[i] = z[i]*r[i][1]+z[i+1]*r[i][2];
-        z[i+1] = -z[i]*r[i][2]+z[i+1]*r[i][1];
+        double temp = z[i]*r[i][0]+z[i+1]*r[i][1];
+        z[i+1] = -z[i]*r[i][1]+z[i+1]*r[i][0];
+        z[i] = temp;
     }
 }
 void Utilities::apply_rot(vector<vector<double> > &H,const vector<vector<double> > &r,unsigned int startind ,unsigned int endind ,unsigned int numcols){
@@ -841,8 +845,9 @@ void Utilities::apply_rot(vector<vector<double> > &H,const vector<vector<double>
     }
     for(unsigned int i = startind; i<endind;i++){
         for(unsigned int j = 0; j<numcols;j++){
-            H[i][j] = H[i][j]*r[i][1]+H[i+1][j]*r[i][2];
-            H[i+1][j] = -H[i][j]*r[i][2]+H[i+1][j]*r[i][1];
+            double temp = H[i][j]*r[i][0]+H[i+1][j]*r[i][1];
+            H[i+1][j] = -H[i][j]*r[i][1]+H[i+1][j]*r[i][0];
+            H[i][j] = temp;
         }
     }
     
