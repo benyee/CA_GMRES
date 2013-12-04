@@ -58,6 +58,9 @@ public:
     struct GMRES_sol classicalGMRES(const vector<double> &b, double tol = 1.0E-6, unsigned int max_it = 100);
     struct GMRES_sol classicalGMRES(const vector<double> &b, vector<double> x, double tol = 1.0E-6,unsigned int max_it = 100);
     
+    //Communication avoiding GMRES:
+    struct GMRES_sol ca_GMRES(const vector<double> &b, double tol = 1.0E-6, unsigned int max_it = Utilities::RESTART);
+    
     void print_matrix();
     
 private:
