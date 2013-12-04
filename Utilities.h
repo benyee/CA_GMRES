@@ -114,6 +114,11 @@ public:
     static void apply_rot(vector<double> &z,const vector<vector<double> > &r,unsigned int startind = 0,unsigned int endind = 0);
     static void apply_rot(vector<vector<double> > &H,const vector<vector<double> > &r,unsigned int startind = 0,unsigned int endind = 0, unsigned int numcols = 0);
     
+    
+    static void invertUpperT(vector< vector<double> > &R, vector< vector<double> > &Rinv);
+    static void invertUpperT(vector< vector<double> > &R, vector< vector<double> > &Rinv, unsigned int width);
+    //**********
+    
     static double twoNorm(const vector<double> &x);
     static double infNorm(const vector<double> &x);
 };

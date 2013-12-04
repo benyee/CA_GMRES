@@ -14,7 +14,7 @@ Utilities::Utilities(){
 void Utilities::printDVector(const vector<double> &vec){
     cout<<"[ ";
     for(unsigned int i = 0; i < vec.size(); i++){
-        cout<<vec[i]<<'\t';
+        cout<<vec[i]<<" ";
     }
     cout<<"]"<<endl;
 }
@@ -31,7 +31,7 @@ void Utilities::printFullMatrix(const vector< vector<double> > &mat, bool rowFir
         for(unsigned int i = 0; i < mat.back().size();i++){
             cout<<"[ ";
             for(unsigned int j = 0; j < mat.size();j++){
-                cout<<mat[j][i]<<'\t';
+                cout<<mat[j][i]<<" ";
             }
             cout<<"] "<<endl;
         }
@@ -851,6 +851,24 @@ void Utilities::apply_rot(vector<vector<double> > &H,const vector<vector<double>
         }
     }
     
+}
+
+
+void Utilities::invertUpperT(vector< vector<double> > &R, vector< vector<double> > &Rinv){
+    unsigned int width = R.size()-1;
+    Utilities::invertUpperT(R,Rinv,width);
+}
+
+void Utilities::invertUpperT(vector< vector<double> > &R, vector< vector<double> > &Rinv, unsigned int width){
+    for(int i = width-1;i>=0;i--){
+        Rinv[i][i] = 1.0/R[i][i];
+        for(int j = i-1;j>=0;j--){
+            Rinv[j][i] = 0;
+            for(int m = j+1; m<width;m++){
+                Rinv[j][i] -= R[j][m]*Rinv[m][i]/R[j][j];
+            }
+        }
+    }
 }
 
 /*****************************FINAL PUSH***************************************/
