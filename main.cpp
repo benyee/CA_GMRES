@@ -19,6 +19,11 @@ int main ()
 {
     cout << "Hello world!"<<endl;
     
+    if(Utilities::BLOCK_SIZE < Utilities::s){
+        cout<<"BLOCK SIZE TOO SMALL"<<endl;
+        return 0;
+    }
+    
     bool fullDiagnosis = false;
     
     cout << "Testing reading in a sparse matrix..."<<endl;
@@ -142,7 +147,7 @@ int main ()
     
 
     
-    if(Utilities::A_SIZE == 2500){
+    if(fullDiagnosis && Utilities::A_SIZE == 2500){
         cout<<endl<<"Testing matrix powers kernel"<<endl;
         SparseMat *secondsample = new SparseMat;
         secondsample->readFullMatrix("example_matpow.txt");
@@ -165,26 +170,48 @@ int main ()
         }
         cout<<"regular mat pow took "<<clock()-start<<endl;
          */
-    }else if(Utilities::A_SIZE==4){    }
+    }//else if(Utilities::A_SIZE==4){    }
     
     
     //Test matrix powers:
     cout<<endl<<endl<<endl;
     cout<<"Testing straightfoward, column-based matrix powers..."<<endl;
     SparseMat *ebe = new SparseMat();
-    ebe->readFullMatrix("thbyth.txt");
+    if(Utilities::A_SIZE == 2500){
+        ebe->readFullMatrix("example_matpow.txt");
+    }else if(Utilities::A_SIZE==16){
+        ebe->readFullMatrix("thbyth.txt");
+    }
     vector<double> eV(samplevec);
     Utilities::expandVec(eV,Utilities::A_SIZE); //Expand to make it a 1x8 vector
-    Utilities::printFullMatrix(ebe->convertToFullMatrix());
+    if(Utilities::A_SIZE == 16){
+        Utilities::printFullMatrix(ebe->convertToFullMatrix());
+    }
     vector<vector<double> > V = Utilities::zeros(Utilities::s,Utilities::A_SIZE);
     V[0] = eV;
     unsigned int ind[2] = {1,Utilities::s};
     ebe->regMatrixPowers(V,ind);
-    Utilities::printFullMatrix(V);
+    if(Utilities::A_SIZE == 16){
+        Utilities::printFullMatrix(V);
+    }
     
     vector<vector <double> > Q = Utilities::zeros(Utilities::s,Utilities::A_SIZE);
-    Utilities::printFullMatrix(Utilities::tsQR_col(V,Q));
-    Utilities::printFullMatrix(Q);
+    vector<vector <double> > Qtemp(Q);
+    if(Utilities::A_SIZE == 16){
+        Utilities::printFullMatrix(Utilities::tsQR_col(V,Q,Qtemp));
+        Utilities::printFullMatrix(Q);
+    }
+    
+    cout<<"Running mgs..."<<endl;
+    int i = clock();
+    Utilities::mgs_col(V);
+    cout<<"mgs took "<<clock()-i<<" seconds"<<endl;
+    Q = Utilities::zeros(Utilities::s,Utilities::A_SIZE);
+    cout<<"Running TSQR..."<<endl;
+    i = clock();
+    Utilities::tsQR_col(V,Q,Qtemp);
+    cout<<"TSQR took "<<clock()-i<<" seconds"<<endl;
+    
     
     if(fullDiagnosis){
         //Test matrix powers:
@@ -206,10 +233,6 @@ int main ()
         Utilities::matmat(A,B,AB,shiftA, shiftB,indrowAB,indcolAB,m_max);
         Utilities::printFullMatrix(AB);
     }
-    
-    
-    
-    //
     
     cout << "Goodbye world!"<<endl;
     return 0;
