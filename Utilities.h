@@ -104,6 +104,15 @@ public:
     static void matmat(const vector<vector<double> > &A, double B[s][BLOCK_SIZE2], vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max);
     
     static vector < vector <double> > tsQR_col(const vector< vector<double> > &A,vector< vector<double> > &Q, vector< vector<double> > &Qtemp);
+ 
+    //Rotates H and returns a vector r describing the rotations.
+    static vector < vector<double> > givens_rot(vector< vector<double> > &H){
+        return givens_rot(H,H.size(),H.size()-1);
+    }
+    static vector < vector<double> > givens_rot(vector< vector<double> > &H, unsigned int numrows, unsigned int numcols);
+    //Applies the rotations r[startind:endind-1].  If endind = 0, then it applies all rotations r.
+    static void apply_rot(vector<double> z,const vector<vector<double> > &r,unsigned int startind = 0,unsigned int endind = 0);
+    static void apply_rot(vector<vector<double> > &H,const vector<vector<double> > &r,unsigned int startind = 0,unsigned int endind = 0, unsigned int numcols = 0);
     
     static double twoNorm(const vector<double> &x);
     static double infNorm(const vector<double> &x);
