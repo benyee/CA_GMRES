@@ -389,5 +389,81 @@ struct GMRES_sol SparseMat::classicalGMRES(const vector<double> &b, vector<doubl
     return sol;
 }
 
+//Communication avoiding GMRES:
+struct GMRES_sol SparseMat::ca_GMRES(const vector<double> &b, double tol, unsigned int max_it){
+    return ca_GMRES(b,Utilities::zeros(b.size()),tol,max_it);
+}
+struct GMRES_sol SparseMat::ca_GMRES(const vector<double> &b, vector<double> x, double tol, unsigned int max_it){
+    GMRES_sol sol;
+    sol.converged = false;
+    vector<double> res;
+    
+    const double s = Utilities::s;
+    const double A_SIZE= Utilities::A_SIZE;
+    
+    unsigned int restart = 0;
+    
+    vector<double> r0 = Utilities::axpy(b,-1,smvp(x));
+    double beta = Utilities::twoNorm(r0);
+    vector<double> q1 = Utilities::axpy(r0,1.0/beta);
+    
+    //Form basis matrix B:
+    vector<vector<double> > B(s+1,vector<double>(s,0));
+    for(unsigned int i = 0;i<=s;i++){
+        B[i+1][i] = 1;
+    }
+    
+    //Initialize V:
+    vector<vector<double> > V(s,vector<double>(A_SIZE,0));
+    V[0] = b;
+    
+    //Matrix powers:
+    unsigned int ind[2] = {1,s};
+    regMatrixPowers(V, ind);
+    
+    //Initialize more matrices.  blackQ, Q and V are stored as transposes.  All other matrices stored as regular matrices.
+    vector<vector<double> > R;
+    vector<vector<double> > Rinv(s,vector<double>(s,0));
+    vector<vector<double> > Q(V);
+    vector<vector<double> > Qtemp(Q);
+    vector<vector<double> > blackQ(Utilities::RESTART,vector<double>(A_SIZE,0));
+    
+    //Might need to resize this later.  This is blackH_k
+    vector<vector<double> > blackh_k(Utilities::RESTART+1,vector<double>(Utilities::RESTART,0));
+    
+    vector<vector<double> > temp(s+1,vector<double>(s,0));
+    
+    //Step 8:
+    //beta*e1:
+    vector<double> Be1(Utilities::RESTART+1,0);
+    Be1[0] = beta;
+    
+    double hk;
+    
+    for(unsigned int k = 0; k<Utilities::RESTART/s;k++){
+        if(k==0){
+            //Step 6:
+            R = Utilities::tsQR_col(V,blackQ,Qtemp);
+            
+            //Calculate Rinv:  (Step7)
+            Utilities::invertUpperT(R,Rinv);
+            //Calculate blackh_k  (Step 7)
+            Utilities::matmat(B,Rinv,temp);
+            Utilities::matmat(R,temp,blackh_k);
+            
+//            double hk = blackh_k[]
+        }else{
+            
+        }
+    }
+    
+    sol.converged = true;
+    sol.num_its = (restart+1)*Utilities::RESTART;
+    sol.x = x;
+    sol.res =res;
+    return sol;
+}
+
+
 
 

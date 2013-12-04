@@ -25,9 +25,11 @@ public:
     ~Utilities();
 
     static const unsigned int s = 3; // How many vectors to compute at a time for matrix powers.  Also determines the width of your TSQR matrix (I think...)
-    static const unsigned int RESTART = 60; //This doesn't do anything for now.
+    static const unsigned int sp1 = s+1;
+    static const unsigned int RESTART = s; //This doesn't do anything for now.
     static const unsigned int A_SIZE = 16;  //This is the size of your matrix
     static const unsigned int BLOCK_SIZE2 = 6;//7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
+    static const unsigned int BLOCK_SIZE2sp1 = BLOCK_SIZE2+1;//7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
     static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - s; //Block size for TSQR
     
     static void printDVector(const vector<double> &vec); //Prints out a vector of doubles
@@ -93,14 +95,16 @@ public:
     //****************Column based fixed block size stuff************************
     static void RAtoAi_col(const vector<vector<double> >  &A, vector<vector<double> >  R, double Ai[s][BLOCK_SIZE2], double ind1);
     static void RAtoAi_col(const vector<vector<double> >  &A, double R[s][s], double Ai[s][BLOCK_SIZE2], double ind1);
+    static void RAtoAi_colfirst(const vector<vector<double> >  &A, vector<vector<double> >  R, double Ai[sp1][BLOCK_SIZE2], double ind1);
+    static void RAtoAi_colfirst(const vector<vector<double> >  &A, double R[sp1][sp1], double Ai[sp1][BLOCK_SIZE2], double ind1);
     //************************************************************************************************
     
     //*********FINAL STUFF****
-    static void matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB);
+    static void matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, bool colFirst = true);
     //This is equivalent to AB(indrowAB(1):indrowAB(2)-1,indcolAB(1):indcolAB(2)-1) =
     //  A(shiftA(1):shiftA(1)+(indrowAB(2)-indrowAB(1))-1, shiftA(2):shiftA(2)+m-1)*
     //  B(shiftB(1):shiftB(1)+m-1,shiftB(2):shiftB(2)+(indcolAB(2)-indcolAB(1))-1)
-    static void matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max);
+    static void matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max,bool colFirst = true);
     static void matmat(const vector<vector<double> > &A, double B[s][BLOCK_SIZE2], vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max);
     
     static vector < vector <double> > tsQR_col(const vector< vector<double> > &A,vector< vector<double> > &Q, vector< vector<double> > &Qtemp);
@@ -119,6 +123,15 @@ public:
     static void invertUpperT(vector< vector<double> > &R, vector< vector<double> > &Rinv, unsigned int width);
     //**********
     
+    static void RAtoAi_colfirst(const vector<vector<double> >  &A, vector<vector<double> >  R, double Ai[sp1][BLOCK_SIZE2sp1], double ind1);
+    static void RAtoAi_colfirst(const vector<vector<double> >  &A, double R[sp1][sp1], double Ai[sp1][BLOCK_SIZE2sp1], double ind1);
+    
+    static void matmat_first(const vector<vector<double> > &A, double B[sp1][BLOCK_SIZE2sp1], vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max);
+    
+    static vector < vector <double> > tsQR_colfirst(const vector < vector < double> > &A, vector< vector<double> > &Q, vector< vector<double> > &Qtemp);
+    
+    static void mgs_first(double At[sp1][BLOCK_SIZE2sp1], double R[sp1][sp1], double Q[sp1][BLOCK_SIZE2sp1]);
+    //**************
     static double twoNorm(const vector<double> &x);
     static double infNorm(const vector<double> &x);
 };

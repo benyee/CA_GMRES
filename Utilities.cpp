@@ -520,6 +520,7 @@ void Utilities::RAtoAi_col(const vector<vector<double> >  &A, double R[s][s], do
     }
 }
 
+
 //************************************************************************************************
 //************************************************************************************************
 //************************************************************************************************
@@ -649,26 +650,41 @@ double Utilities::twoNorm(const vector<double> &x){
 /******************************************************************************/
 
 /************ MATRIX-MATRIX MULTIPLY****************/
-void Utilities::matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB){
+void Utilities::matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, bool colFirst){
     unsigned int indrowAB[2] = {0,AB.size()};
     unsigned int indcolAB[2] = {0,AB[0].size()};
     unsigned int shift[2] = {0,0};
-    matmat(A,B,AB,shift,shift,indrowAB,indcolAB,B.size());
+    matmat(A,B,AB,shift,shift,indrowAB,indcolAB,B.size(),colFirst);
     
 }
 
-void Utilities::matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max){
-    
-    for(unsigned int j = indcolAB[0]; j<indcolAB[1];j++){
-        unsigned int B_col = j-indcolAB[0]+shiftB[1];
+void Utilities::matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max,bool colFirst){
+    if(colFirst){
+        for(unsigned int j = indcolAB[0]; j<indcolAB[1];j++){
+            unsigned int B_col = j-indcolAB[0]+shiftB[1];
+            for(unsigned int i = indrowAB[0]; i<indrowAB[1];i++){
+                unsigned int A_row = i-indrowAB[0]+shiftA[0];
+                
+                AB[j][i] = 0;
+                for(unsigned m = 0; m<m_max;m++){
+                    AB[j][i] += A[m+shiftA[1]][A_row]*B[B_col][m+shiftB[0]];
+                }
+                
+            }
+        }
+    }else{
         for(unsigned int i = indrowAB[0]; i<indrowAB[1];i++){
             unsigned int A_row = i-indrowAB[0]+shiftA[0];
             
-            AB[j][i] = 0;
-            for(unsigned m = 0; m<m_max;m++){
-                AB[j][i] += A[m+shiftA[1]][A_row]*B[B_col][m+shiftB[0]];
+            for(unsigned int j = indcolAB[0]; j<indcolAB[1];j++){
+                unsigned int B_col = j-indcolAB[0]+shiftB[1];
+                
+                AB[i][j] = 0;
+                for(unsigned m = 0; m<m_max;m++){
+                    AB[i][j] += A[A_row][m+shiftA[1]]*B[m+shiftB[0]][B_col];
+                }
+                
             }
-            
         }
     }
     
@@ -875,3 +891,192 @@ void Utilities::invertUpperT(vector< vector<double> > &R, vector< vector<double>
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
+
+/***k = 0 for final push:**/
+
+void Utilities::RAtoAi_colfirst(const vector<vector<double> >  &A, vector<vector<double> >  R, double Ai[sp1][BLOCK_SIZE2sp1], double ind1){
+    for(unsigned int j = 0; j<sp1;j++){
+        for(unsigned int i = 0; i< sp1;i++){
+            Ai[i][j] = R[j][i];
+        }
+    }
+    for(unsigned int i = 0; i< sp1;i++){
+        for(unsigned int j = 0; j<BLOCK_SIZE;j++){
+            Ai[i][j+sp1] = A[i][j+ind1];
+        }
+    }
+}
+void Utilities::RAtoAi_colfirst(const vector<vector<double> >  &A, double R[sp1][sp1], double Ai[sp1][BLOCK_SIZE2sp1], double ind1){
+    for(unsigned int j = 0; j<sp1;j++){
+        for(unsigned int i = 0; i< sp1;i++){
+            Ai[i][j] = R[j][i];
+        }
+    }
+    for(unsigned int i = 0; i< sp1;i++){
+        for(unsigned int j = 0; j<BLOCK_SIZE;j++){
+            Ai[i][j+sp1] = A[i][j+ind1];
+        }
+    }
+}
+
+
+void Utilities::matmat_first(const vector<vector<double> > &A, double B[sp1][BLOCK_SIZE2sp1], vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max){
+    
+    for(unsigned int j = indcolAB[0]; j<indcolAB[1];j++){
+        unsigned int B_col = j-indcolAB[0]+shiftB[1];
+        for(unsigned int i = indrowAB[0]; i<indrowAB[1];i++){
+            unsigned int A_row = i-indrowAB[0]+shiftA[0];
+            
+            AB[j][i] = 0;
+            for(unsigned m = 0; m<m_max;m++){
+                AB[j][i] += A[m+shiftA[1]][A_row]*B[B_col][m+shiftB[0]];
+            }
+            
+        }
+    }
+    
+}
+
+
+vector < vector <double> > Utilities::tsQR_colfirst(const vector < vector < double> > &A, vector< vector<double> > &Q, vector< vector<double> > &Qtemp){
+    unsigned int numrow = A[0].size();
+    unsigned int numblk = numrow/BLOCK_SIZE;
+    
+    vector < vector <double> > Ai = subMatrix(A, make_pair(0,sp1), make_pair(0,BLOCK_SIZE));
+    pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs_col(Ai);
+    vector < vector <double> > R = QR.second;
+    for(unsigned int j = 0;j<sp1;j++){
+        for(unsigned int i = 0; i<BLOCK_SIZE;i++){
+            Q[j][i] = QR.first[j][i];
+        }
+    }
+    
+    unsigned int indrowAB[2] = {0,BLOCK_SIZE};
+    unsigned int indcolAB[2] = {0,sp1};
+    unsigned int shiftA[2] = {0,0};
+    unsigned int shiftB[2] = {0,0};
+    
+    if(numblk > 1){
+        // i = 2, since Q isn't the proper size yet
+        Ai = subMatrix(A, make_pair(0,sp1), make_pair(BLOCK_SIZE,2*BLOCK_SIZE));
+        Ai = stackMat(transpose(R),Ai,false);
+        QR = mgs_col(Ai);
+        R = QR.second;
+        matmat(Q,QR.first,Qtemp,shiftA,shiftB,indrowAB,indcolAB,sp1);
+        for(unsigned int j = 0;j<sp1;j++){
+            for(unsigned int i = 0; i <indrowAB[1];i++){
+                Q[j][i] = Qtemp[j][i];
+            }
+            for(unsigned int i = sp1; i<BLOCK_SIZE2sp1;i++){
+                Q[j][i+BLOCK_SIZE-sp1] = QR.first[j][i];
+            }
+        }
+    }
+    if(numblk > 2){
+        // i = 3, R isn't a matrix yet
+        double Ai_arr[sp1][BLOCK_SIZE2sp1];
+        RAtoAi_colfirst(A,R,Ai_arr,BLOCK_SIZE2sp1);
+        double R_arr[sp1][sp1];
+        double Q_arr[sp1][BLOCK_SIZE2sp1];
+        mgs_first(Ai_arr,R_arr,Q_arr);
+        
+        
+        //BLOCK_SIZE2sp1 = sp1+BLOCK_SIZE, static constant
+        indrowAB[1] = 2*BLOCK_SIZE;
+        matmat_first(Q,Q_arr,Qtemp,shiftA,shiftB,indrowAB,indcolAB,sp1);
+        for(unsigned int j = 0;j<sp1;j++){
+            for(unsigned int i = 0; i <indrowAB[1];i++){
+                Q[j][i] = Qtemp[j][i];
+            }
+            for(unsigned int i = sp1; i<BLOCK_SIZE2sp1;i++){
+                Q[j][i+indrowAB[1]-sp1] = Q_arr[j][i];
+            }
+        }
+        
+        // Q and R are the right format i = 4 and beyond
+        for(unsigned int i=3;i<numblk;i++){
+            int start = clock();
+            RAtoAi_colfirst(A,R_arr,Ai_arr,i*BLOCK_SIZE);
+            mgs_first(Ai_arr,R_arr,Q_arr);
+            cout<<"time0 = "<<clock()-start<<endl;
+            
+            indrowAB[1] = i*BLOCK_SIZE;
+            matmat_first(Q,Q_arr,Qtemp,shiftA,shiftB,indrowAB,indcolAB,sp1);
+            cout<<"time1 = "<<clock()-start<<endl;
+            for(unsigned int j = 0;j<sp1;j++){
+                for(unsigned int i = 0; i <indrowAB[1];i++){
+                    Q[j][i] = Qtemp[j][i];
+                }
+                double shift = indrowAB[1]-sp1;
+                for(unsigned int i = sp1; i<BLOCK_SIZE2sp1;i++){
+                    Q[j][i+shift] = Q_arr[j][i];
+                }
+            }
+            cout<<"time2 = "<<clock()-start<<endl;
+            
+        }
+        
+        //Convert R back to a vector:
+        for(unsigned int i = 0; i<sp1;i++){
+            for(unsigned int j = 0; j<sp1;j++){
+                R[i][j] = R_arr[i][j];
+            }
+        }
+        //Convert Q back to a vector if necessary:
+        if(numrow % BLOCK_SIZE != 0){
+            for(unsigned int i = 0; i<sp1;i++){
+                for(unsigned int j = 0; j<BLOCK_SIZE2sp1;j++){
+                    QR.first[i][j] = Q_arr[i][j];
+                }
+            }
+        }
+    }
+    
+    
+    //If there's an odd block out:
+    if (numrow % BLOCK_SIZE != 0){
+        Ai = subMatrix(A, make_pair(0,sp1), make_pair(numblk*BLOCK_SIZE,numrow));
+        Ai = stackMat(transpose(R),Ai,false);
+        QR = mgs_col(Ai,sp1,R,QR.first);
+        R = QR.second;
+        
+        
+        indrowAB[1] = (numrow/BLOCK_SIZE)*BLOCK_SIZE;
+        matmat(Q,QR.first,Qtemp,shiftA,shiftB,indrowAB,indcolAB,sp1);
+        for(unsigned int j = 0;j<sp1;j++){
+            for(unsigned int i = 0; i <indrowAB[1];i++){
+                Q[j][i] = Qtemp[j][i];
+            }
+            for(unsigned int i = sp1; i<(numrow%BLOCK_SIZE)+sp1;i++){
+                Q[j][i+indrowAB[1]-sp1] = QR.first[j][i];
+            }
+        }
+    }
+    
+    return R;
+}
+
+void Utilities::mgs_first(double At[sp1][BLOCK_SIZE2sp1], double R[sp1][sp1], double Q[sp1][BLOCK_SIZE2sp1]){
+    for(unsigned int i = 0; i<sp1;i++){
+        R[i][i] = twoNorm(At[i]);
+        if (R[i][i]==0){
+            for(unsigned int m = 0; m<BLOCK_SIZE2sp1;m++){
+                Q[i][m] = At[i][m];
+            }
+        }
+        else{
+            for(unsigned int m = 0; m<BLOCK_SIZE2sp1;m++){
+                Q[i][m] = At[i][m]/R[i][i];
+            }
+        }
+        for(unsigned int j = i+1; j<sp1;j++){
+            R[i][j] = 0;
+            for(unsigned int m = 0; m<BLOCK_SIZE2sp1;m++){
+                R[i][j] += Q[i][m]*At[j][m];
+            }
+            for(unsigned int m = 0; m<BLOCK_SIZE2sp1;m++){
+                At[j][m] = At[j][m]-R[i][j]*Q[i][m];
+            }
+        }
+    }
+}
