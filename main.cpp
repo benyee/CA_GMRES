@@ -151,7 +151,7 @@ int main ()
         V[0] = smvptest;
         unsigned int ind[2] = {1, Utilities::s+1};
         secondsample->regMatrixPowers(V,ind);
-        Utilities::tsQR_col(V);
+       // Utilities::tsQR_col(V); need to define Q later before i can test this
         /*
         vector<vector<double> > V = Utilities::zeros(Utilities::A_SIZE,Utilities::s);
         secondsample->matrixPowersMapper();
@@ -182,7 +182,9 @@ int main ()
     ebe->regMatrixPowers(V,ind);
     Utilities::printFullMatrix(V);
     
-    Utilities::printFullMatrix(Utilities::tsQR_col(V));
+    vector<vector <double> > Q = Utilities::zeros(Utilities::s,Utilities::A_SIZE);
+    Utilities::printFullMatrix(Utilities::tsQR_col(V,Q));
+    Utilities::printFullMatrix(Q);
     
     if(fullDiagnosis){
         //Test matrix powers:
@@ -198,7 +200,6 @@ int main ()
         
         unsigned int indrowAB[2] = {1,3};
         unsigned int indcolAB[2] = {2,4};
-        unsigned int ABsize[2] = {1,3};
         unsigned int shiftA[2] = {0,1};
         unsigned int shiftB[2] = {1,0};
         unsigned int m_max = 2;

@@ -659,14 +659,14 @@ void Utilities::matmat(const vector<vector<double> > &A, const vector<vector<dou
 
 void Utilities::matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max){
     
-    for(unsigned int i = indrowAB[0]; i<indrowAB[1];i++){
-        unsigned int A_row = i-indrowAB[0]+shiftA[0];
-        for(unsigned int j = indcolAB[0]; j<indcolAB[1];j++){
-            unsigned int B_col = j-indcolAB[0]+shiftB[1];
+    for(unsigned int j = indcolAB[0]; j<indcolAB[1];j++){
+        unsigned int B_col = j-indcolAB[0]+shiftB[1];
+        for(unsigned int i = indrowAB[0]; i<indrowAB[1];i++){
+            unsigned int A_row = i-indrowAB[0]+shiftA[0];
             
-            AB[i][j] = 0;
+            AB[j][i] = 0;
             for(unsigned m = 0; m<m_max;m++){
-                AB[i][j] += A[A_row][m+shiftA[1]]*B[m+shiftB[0]][B_col];
+                AB[j][i] += A[m+shiftA[1]][A_row]*B[B_col][m+shiftB[0]];
             }
             
         }
@@ -674,13 +674,41 @@ void Utilities::matmat(const vector<vector<double> > &A, const vector<vector<dou
     
 }
 
-vector < vector <double> > Utilities::tsQR_col(const vector < vector < double> > &A){
+void Utilities::matmat(const vector<vector<double> > &A, double B[s][BLOCK_SIZE2], vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max){
+    
+    for(unsigned int j = indcolAB[0]; j<indcolAB[1];j++){
+        unsigned int B_col = j-indcolAB[0]+shiftB[1];
+        for(unsigned int i = indrowAB[0]; i<indrowAB[1];i++){
+            unsigned int A_row = i-indrowAB[0]+shiftA[0];
+            
+            AB[j][i] = 0;
+            for(unsigned m = 0; m<m_max;m++){
+                AB[j][i] += A[m+shiftA[1]][A_row]*B[B_col][m+shiftB[0]];
+            }
+            
+        }
+    }
+    
+}
+
+vector < vector <double> > Utilities::tsQR_col(const vector < vector < double> > &A, vector< vector<double> > &Q){
     unsigned int numrow = A[0].size();
     unsigned int numblk = numrow/BLOCK_SIZE;
     
     vector < vector <double> > Ai = subMatrix(A, make_pair(0,s), make_pair(0,BLOCK_SIZE));
     pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs_col(Ai);
     vector < vector <double> > R = QR.second;
+    vector < vector<double> > Qtemp(Q);
+    for(unsigned int j = 0;j<s;j++){
+        for(unsigned int i = 0; i<BLOCK_SIZE;i++){
+            Q[j][i] = QR.first[j][i];
+        }
+    }
+    
+    unsigned int indrowAB[2] = {0,BLOCK_SIZE};
+    unsigned int indcolAB[2] = {0,s};
+    unsigned int shiftA[2] = {0,0};
+    unsigned int shiftB[2] = {0,0};
     
     if(numblk > 1){
         // i = 2, since Q isn't the proper size yet
@@ -688,6 +716,15 @@ vector < vector <double> > Utilities::tsQR_col(const vector < vector < double> >
         Ai = stackMat(transpose(R),Ai,false);
         QR = mgs_col(Ai);
         R = QR.second;
+        matmat(Q,QR.first,Qtemp,shiftA,shiftB,indrowAB,indcolAB,s);
+        for(unsigned int j = 0;j<s;j++){
+            for(unsigned int i = 0; i <indrowAB[1];i++){
+                Q[j][i] = Qtemp[j][i];
+            }
+            for(unsigned int i = s; i<BLOCK_SIZE2;i++){
+                Q[j][i+BLOCK_SIZE-s] = QR.first[j][i];
+            }
+        }
     }
     if(numblk > 2){
         // i = 3, R isn't a matrix yet
@@ -697,14 +734,33 @@ vector < vector <double> > Utilities::tsQR_col(const vector < vector < double> >
         double Q_arr[s][BLOCK_SIZE2];
         mgs(Ai_arr,R_arr,Q_arr);
         
+        //BLOCK_SIZE2 = s+BLOCK_SIZE, static constant
+        indrowAB[1] = 2*BLOCK_SIZE;
+        matmat(Q,Q_arr,Qtemp,shiftA,shiftB,indrowAB,indcolAB,s);
+        for(unsigned int j = 0;j<s;j++){
+            for(unsigned int i = 0; i <indrowAB[1];i++){
+                Q[j][i] = Qtemp[j][i];
+            }
+            for(unsigned int i = s; i<BLOCK_SIZE2;i++){
+                Q[j][i+indrowAB[1]-s] = Q_arr[j][i];
+            }
+        }
+        
         // Q and R are the right format i = 4 and beyond
         for(unsigned int i=3;i<numblk;i++){
-            //unsigned int start = clock();
-            RAtoAi_col(A,R_arr,Ai_arr,i*BLOCK_SIZE); // RAtoAi(A,R_arr,Ai_arr,(i-1)*numblk);
-            //cout<<"RAtoAi took "<<clock()-start<<endl;
-            //start = clock();
+            RAtoAi_col(A,R_arr,Ai_arr,i*BLOCK_SIZE);
             mgs(Ai_arr,R_arr,Q_arr);
-            //cout<<"mgs took "<<clock()-start<<endl;
+            
+            indrowAB[1] = i*BLOCK_SIZE;
+            matmat(Q,Q_arr,Qtemp,shiftA,shiftB,indrowAB,indcolAB,s);
+            for(unsigned int j = 0;j<s;j++){
+                for(unsigned int i = 0; i <indrowAB[1];i++){
+                    Q[j][i] = Qtemp[j][i];
+                }
+                for(unsigned int i = s; i<BLOCK_SIZE2;i++){
+                    Q[j][i+indrowAB[1]-s] = Q_arr[j][i];
+                }
+            }
         }
         
         //Convert R back to a vector:
@@ -728,6 +784,19 @@ vector < vector <double> > Utilities::tsQR_col(const vector < vector < double> >
         Ai = stackMat(transpose(R),Ai,false);
         QR = mgs_col(Ai,s,R,QR.first);
         R = QR.second;
+        
+        
+        indrowAB[1] = (numrow/BLOCK_SIZE)*BLOCK_SIZE;
+        matmat(Q,QR.first,Qtemp,shiftA,shiftB,indrowAB,indcolAB,s);
+        printFullMatrix(Qtemp);
+        for(unsigned int j = 0;j<s;j++){
+            for(unsigned int i = 0; i <indrowAB[1];i++){
+                Q[j][i] = Qtemp[j][i];
+            }
+            for(unsigned int i = s; i<(numrow%BLOCK_SIZE)+s;i++){
+                Q[j][i+indrowAB[1]-s] = QR.first[j][i];
+            }
+        }
     }
     
     return R;
