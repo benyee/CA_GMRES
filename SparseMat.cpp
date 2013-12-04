@@ -94,6 +94,7 @@ vector< vector<double> > SparseMat::convertToFullMatrix(unsigned int numRows, un
                 }
             }
             outvec.push_back(row);
+            A_counter = IA[i+1];
         }
         return outvec;
     }
@@ -166,6 +167,15 @@ vector<double> SparseMat::smvp(const vector<double> &vec){
     }
     
     return outb;
+}
+
+void SparseMat::regMatrixPowers(vector<vector<double> > &V, const unsigned int ind[2]){
+    if(ind[0] == 0){
+        return;
+    }
+    for(unsigned int i = ind[0]; i<ind[1];i++){
+        V[i] = smvp(V[i-1]);
+    }
 }
 
 void SparseMat::matrixPowersMapper(){
