@@ -212,7 +212,6 @@ int main ()
     Utilities::tsQR_col(V,Q,Qtemp);
     cout<<"TSQR took "<<clock()-i<<" seconds"<<endl;
     
-    
     if(fullDiagnosis){
         //Test matrix powers:
         cout<<endl<<endl<<endl;

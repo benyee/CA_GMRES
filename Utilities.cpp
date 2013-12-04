@@ -808,6 +808,45 @@ vector < vector <double> > Utilities::tsQR_col(const vector < vector < double> >
     return R;
 }
 
+/*****GIVENS****/
+vector < vector<double> > Utilities::givens_rot(vector< vector<double> > &H, unsigned int numrows, unsigned int numcols){
+    vector <vector<double> > r = Utilities::zeros(numrows-1,2);
+    for(unsigned int i = 0; i<numrows-1;i++){
+        double d = sqrt(H[i][i]*H[i][i]+H[i+1][i]*H[i+1][i]);
+        r[i][1] = H[i][i]/d;
+        r[i][2] = H[i+1][i]/d;
+        
+        for(unsigned int j = 0; j<numcols;j++){
+            H[i][j] = H[i][j]*r[i][1]+H[i+1][j]*r[i][2];
+            H[i+1][j] = -H[i][j]*r[i][2]+H[i+1][j]*r[i][1];
+        }
+    }
+}
+
+void Utilities::apply_rot(vector<double> z,const vector<vector<double> > &r,unsigned int startind ,unsigned int endind ){
+    if(endind == 0){
+        endind = r.size();
+    }
+    for(unsigned int i = startind; i<endind;i++){
+        z[i] = z[i]*r[i][1]+z[i+1]*r[i][2];
+        z[i+1] = -z[i]*r[i][2]+z[i+1]*r[i][1];
+    }
+}
+void Utilities::apply_rot(vector<vector<double> > &H,const vector<vector<double> > &r,unsigned int startind ,unsigned int endind ,unsigned int numcols){
+    if(endind == 0){
+        endind = r.size();
+    }
+    if(numcols==0){
+        numcols = H[0].size();
+    }
+    for(unsigned int i = startind; i<endind;i++){
+        for(unsigned int j = 0; j<numcols;j++){
+            H[i][j] = H[i][j]*r[i][1]+H[i+1][j]*r[i][2];
+            H[i+1][j] = -H[i][j]*r[i][2]+H[i+1][j]*r[i][1];
+        }
+    }
+    
+}
 
 /*****************************FINAL PUSH***************************************/
 /******************************************************************************/
