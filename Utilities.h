@@ -24,11 +24,11 @@ public:
     Utilities();
     ~Utilities();
 
-    static const unsigned int s = 3; // How many vectors to compute at a time for matrix powers.  Also determines the width of your TSQR matrix (I think...)
+    static const unsigned int s = 4; // How many vectors to compute at a time for matrix powers.  Also determines the width of your TSQR matrix (I think...)
     static const unsigned int sp1 = s+1;
-    static const unsigned int RESTART = 2*s; 
-    static const unsigned int A_SIZE = 16;  //This is the size of your matrix
-    static const unsigned int BLOCK_SIZE2 = 6;//7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
+    static const unsigned int RESTART = s; 
+    static const unsigned int A_SIZE = 2500;  //This is the size of your matrix
+    static const unsigned int BLOCK_SIZE2 = 2*s;//7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
     static const unsigned int BLOCK_SIZE2sp1 = BLOCK_SIZE2+1;//7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
     static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - s; //Block size for TSQR
     
@@ -75,7 +75,12 @@ public:
     //Use the normal equations to solve Least Squares:  (Large condition #, may result in inaccuracy)
     static vector<double> leastSquaresNormal(vector< vector<double> > A, vector<double> y);
     //Use a QR (mgs) factorization to solve least squares: (not optimal, but more stable)
-    static vector<double> leastSquaresQR(const vector< vector<double> > &A,const vector<double> &y);
+    static vector<double> leastSquaresQR(const vector< vector<double> > &A,const vector<double> &y){
+        unsigned int Arows[2] = {0, A.size()};
+        unsigned int Brows[2] = {0,A[0].size()};
+        return leastSquaresQR(A,y,Arows,Brows,true);
+    }
+    static vector<double> leastSquaresQR(const vector< vector<double> > &A,const vector<double> &y,unsigned int Arows[2],unsigned int Brows[2], bool def = false);
     //Use tall-skinny QR to factorize a matrix
     static vector< vector<double> > tsQR(const vector< vector<double> > &A,unsigned int blksiz);
     
@@ -127,6 +132,7 @@ public:
     static void RAtoAi_colfirst(const vector<vector<double> >  &A, double R[sp1][sp1], double Ai[sp1][BLOCK_SIZE2sp1], double ind1);
     
     static void matmat_first(const vector<vector<double> > &A, double B[sp1][BLOCK_SIZE2sp1], vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max);
+    static void matmat_rowcol(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max);
     
     static vector < vector <double> > tsQR_colfirst(const vector < vector < double> > &A, vector< vector<double> > &Q, vector< vector<double> > &Qtemp);
     

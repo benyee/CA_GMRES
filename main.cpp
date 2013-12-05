@@ -20,13 +20,21 @@ int main ()
     cout << "Hello world!"<<endl;
     
     SparseMat *example = new SparseMat();
-    example->readFullMatrix("thbyth.txt");
+    vector<double> samplevec;
+    if(Utilities::A_SIZE==16){
+        example->readFullMatrix("thbyth.txt");
+        samplevec= Utilities::readVectorFile();
+        Utilities::expandVec(samplevec,Utilities::A_SIZE);
+    }else if(Utilities::A_SIZE<=2500){
+        example->readFullMatrix("example_matpow.txt");
+        samplevec= Utilities::readVectorFile("example_matpowvec.txt");
+    }
     
-    vector<double> samplevec = Utilities::readVectorFile();
-    Utilities::expandVec(samplevec,Utilities::A_SIZE);
     GMRES_sol sol = example->ca_GMRES(samplevec);
     
-    Utilities::printDVector(sol.x);
+    if(Utilities::A_SIZE<20){
+        Utilities::printDVector(sol.x);
+    }
     
     cout << "Goodbye world!"<<endl;
     return 0;

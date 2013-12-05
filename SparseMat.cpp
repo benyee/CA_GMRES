@@ -398,12 +398,13 @@ struct GMRES_sol SparseMat::ca_GMRES(const vector<double> &b, vector<double> x, 
     sol.converged = false;
     vector<double> res;
     
-    const double s = Utilities::s;
-    const double A_SIZE= Utilities::A_SIZE;
+    const unsigned int s = Utilities::s;
+    const unsigned int t = Utilities::RESTART/s;
+    const unsigned int A_SIZE= Utilities::A_SIZE;
     
     unsigned int restart = 0;
     
-    vector<double> r0 = Utilities::axpy(b,-1,smvp(x));
+    vector<double> r0 = Utilities::axpy(smvp(x),-1,b);
     double beta = Utilities::twoNorm(r0);
     vector<double> q1 = Utilities::axpy(r0,1.0/beta);
     
@@ -417,12 +418,10 @@ struct GMRES_sol SparseMat::ca_GMRES(const vector<double> &b, vector<double> x, 
     vector<vector<double> > V(s+1,vector<double>(A_SIZE,0));
     V[0] = q1;
     
-    //Matrix powers:
-    unsigned int ind[2] = {1,s+1};
-    regMatrixPowers(V, ind);
     
     //Initialize more matrices.  blackQ, Q and V are stored as transposes.  All other matrices stored as regular matrices.
     vector<vector<double> > R;
+    vector<vector<double> > blackR((Utilities::RESTART-s)+1,vector<double>(s+1,0));
     vector<vector<double> > Rinv(s,vector<double>(s,0));
     vector<vector<double> > Q(V);
     vector<vector<double> > Qtemp(Q);
@@ -433,6 +432,8 @@ struct GMRES_sol SparseMat::ca_GMRES(const vector<double> &b, vector<double> x, 
     
     vector<vector<double> > temp(s+1,vector<double>(s,0));
     
+    vector<vector<double> > r;
+    
     //Step 8:
     //beta*e1:
     vector<double> Be1(Utilities::RESTART+1,0);
@@ -440,29 +441,56 @@ struct GMRES_sol SparseMat::ca_GMRES(const vector<double> &b, vector<double> x, 
     
     double hk;
     
-    for(unsigned int k = 0; k<Utilities::RESTART/s;k++){
+    unsigned int shiftA[2] = {0,0};
+    unsigned int indrowAB[2] = {0,s+1};
+    unsigned int indcolAB[2] = {0,s};
+    for(unsigned int k = 0; k<t;k++){
+        //Matrix powers:
+        unsigned int ind[2] = {1,s+1};
+        regMatrixPowers(V, ind);
+        
         if(k==0){
             //Step 6:
             R = Utilities::tsQR_colfirst(V,blackQ,Qtemp);
             
             //Calculate Rinv:  (Step7)
             Utilities::invertUpperT(R,Rinv);
-            
+            Utilities::printFullMatrix(Rinv);
             
             //Calculate blackh_k  (Step 7)
             Utilities::matmat(B,Rinv,temp,false);
-            Utilities::matmat(R,temp,blackh_k,false);
+            Utilities::matmat(R,temp,blackh_k,shiftA,shiftA,indrowAB,indcolAB,s+1,false);
             
-            double hk = blackh_k[s+1][s];
+            double hk = blackh_k[s][s-1]; //Need this for the else part later
+            
+            r=Utilities::givens_rot(blackh_k,s+1,s);
+            Utilities::apply_rot(Be1,r);
+            
+            res.push_back(abs(Be1[Be1.size()-1]));
+            cout<<"The final residual is "<<abs(Be1[Be1.size()-1])<<endl;
+            
+            //Givens rotation stuff needed here
         }else{
+            indrowAB[1] = k*s+1;
+            indcolAB[1] = s+1;
+            Utilities::matmat_rowcol(blackQ,V,blackR,shiftA,shiftA,indrowAB,indcolAB,A_SIZE);
             
+            V.erase(V.begin()); //Remove the first part of V
+            vector<vector<double> > temp(V);
+            Utilities::matmat_rowcol(blackQ,V,temp,shiftA,shiftA,indrowAB,indcolAB,A_SIZE);
+            
+            //Lots of steps here....
         }
+        V.insert(V.begin(),Utilities::axpy(blackQ[(k+1)*s],1.0/Utilities::twoNorm(blackQ[(k+1)*s])));
     }
-    
-    vector<double> dx = Utilities::leastSquaresQR(blackh_k,Be1);
-    Utilities::printDVector(dx);
+    indrowAB[1] = s+1;
+    indcolAB[1] = s;
+//    vector<double> dx = Utilities::leastSquaresQR(blackh_k,Be1,indrowAB,indcolAB);
+    Be1.erase(Be1.begin()+Be1.size()-1);
+    vector<double> dx = Utilities::backSub(blackh_k,Be1);
     dx = Utilities::matvec(blackQ,dx,false);
     x = Utilities::axpy(x,dx);
+    cout<<"The actual residual is "<<Utilities::twoNorm(Utilities::axpy(smvp(x),-1,b))<<endl;
     
     sol.converged = true;
     sol.num_its = (restart+1)*Utilities::RESTART;

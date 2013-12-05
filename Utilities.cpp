@@ -180,8 +180,8 @@ double Utilities::dotProd(vector<double> x, vector<double> y){
 
 vector<double> Utilities::backSub(const vector< vector<double> > &A,const vector<double> &b,bool rowFirst){
     vector<double> x(b);
-    for(int i = A.size()-1; i>=0;i--){
-        for(unsigned int j = i+1; j < A.size(); j++){
+    for(int i = b.size()-1; i>=0;i--){
+        for(unsigned int j = i+1; j < b.size(); j++){
             x[i] = x[i] - A[i][j]*x[j];
         }
         x[i] = x[i]/A[i][i];
@@ -585,11 +585,20 @@ vector<double> Utilities::leastSquaresNormal(vector< vector<double> > A, vector<
     return x;
 }
 
-vector<double> Utilities::leastSquaresQR(const vector< vector<double> > &A,const  vector<double> &y){
-    pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(A);
-    vector<double> x = matvec(QR.first,y);
-    x = backSub(QR.second,x);
-    return x;
+vector<double> Utilities::leastSquaresQR(const vector< vector<double> > &A,const  vector<double> &y, unsigned int Arows[2], unsigned int Brows[2], bool def){
+    if(def){
+        pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(A);
+        vector<double> x = matvec(QR.first,y);
+        x = backSub(QR.second,x);
+        return x;
+    }else{
+        vector<vector<double> > Asub = subMatrix(A,make_pair(Arows[0],Arows[1]),make_pair(Brows[0],Brows[1]));
+        pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs(Asub);
+        vector<double> x = matvec(QR.first,y);
+        x = backSub(QR.second,x);
+        return x;
+    }
+    
 }
 
 vector < vector <double> > Utilities::tsQR(const vector < vector < double> > &A,unsigned int blksiz){
@@ -685,6 +694,24 @@ void Utilities::matmat(const vector<vector<double> > &A, const vector<vector<dou
                 }
                 
             }
+        }
+    }
+    
+}
+
+void Utilities::matmat_rowcol(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max){
+    
+    for(unsigned int i = indrowAB[0]; i<indrowAB[1];i++){
+        unsigned int A_row = i-indrowAB[0]+shiftA[0];
+        
+        for(unsigned int j = indcolAB[0]; j<indcolAB[1];j++){
+            unsigned int B_col = j-indcolAB[0]+shiftB[1];
+            
+            AB[i][j] = 0;
+            for(unsigned m = 0; m<m_max;m++){
+                AB[i][j] += A[A_row][m+shiftA[1]]*B[B_col][m+shiftB[0]];
+            }
+            
         }
     }
     
@@ -946,7 +973,6 @@ vector < vector <double> > Utilities::tsQR_colfirst(const vector < vector < doub
             Q[j][i] = QR.first[j][i];
         }
     }
-    
     unsigned int indrowAB[2] = {0,BLOCK_SIZE};
     unsigned int indcolAB[2] = {0,sp1};
     unsigned int shiftA[2] = {0,0};
@@ -993,6 +1019,7 @@ vector < vector <double> > Utilities::tsQR_colfirst(const vector < vector < doub
         for(unsigned int i=3;i<numblk;i++){
             RAtoAi_colfirst(A,R_arr,Ai_arr,i*BLOCK_SIZE);
             mgs_first(Ai_arr,R_arr,Q_arr);
+                
             
             indrowAB[1] = i*BLOCK_SIZE;
             matmat_first(Q,Q_arr,Qtemp,shiftA,shiftB,indrowAB,indcolAB,sp1);
@@ -1050,7 +1077,11 @@ vector < vector <double> > Utilities::tsQR_colfirst(const vector < vector < doub
 
 void Utilities::mgs_first(double At[sp1][BLOCK_SIZE2sp1], double R[sp1][sp1], double Q[sp1][BLOCK_SIZE2sp1]){
     for(unsigned int i = 0; i<sp1;i++){
-        R[i][i] = twoNorm(At[i]);
+        R[i][i] = 0;
+        for(unsigned int m = 0; m<BLOCK_SIZE2sp1;m++){
+            R[i][i] += At[i][m]*At[i][m];
+        }
+        R[i][i] = sqrt(R[i][i]);
         if (R[i][i]==0){
             for(unsigned int m = 0; m<BLOCK_SIZE2sp1;m++){
                 Q[i][m] = At[i][m];
