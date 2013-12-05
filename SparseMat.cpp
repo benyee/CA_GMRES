@@ -409,16 +409,16 @@ struct GMRES_sol SparseMat::ca_GMRES(const vector<double> &b, vector<double> x, 
     
     //Form basis matrix B:
     vector<vector<double> > B(s+1,vector<double>(s,0));
-    for(unsigned int i = 0;i<=s;i++){
+    for(unsigned int i = 0;i<s;i++){
         B[i+1][i] = 1;
     }
     
     //Initialize V:
-    vector<vector<double> > V(s,vector<double>(A_SIZE,0));
-    V[0] = b;
+    vector<vector<double> > V(s+1,vector<double>(A_SIZE,0));
+    V[0] = q1;
     
     //Matrix powers:
-    unsigned int ind[2] = {1,s};
+    unsigned int ind[2] = {1,s+1};
     regMatrixPowers(V, ind);
     
     //Initialize more matrices.  blackQ, Q and V are stored as transposes.  All other matrices stored as regular matrices.
@@ -426,7 +426,7 @@ struct GMRES_sol SparseMat::ca_GMRES(const vector<double> &b, vector<double> x, 
     vector<vector<double> > Rinv(s,vector<double>(s,0));
     vector<vector<double> > Q(V);
     vector<vector<double> > Qtemp(Q);
-    vector<vector<double> > blackQ(Utilities::RESTART,vector<double>(A_SIZE,0));
+    vector<vector<double> > blackQ(Utilities::RESTART+1,vector<double>(A_SIZE,0));
     
     //Might need to resize this later.  This is blackH_k
     vector<vector<double> > blackh_k(Utilities::RESTART+1,vector<double>(Utilities::RESTART,0));
@@ -443,19 +443,26 @@ struct GMRES_sol SparseMat::ca_GMRES(const vector<double> &b, vector<double> x, 
     for(unsigned int k = 0; k<Utilities::RESTART/s;k++){
         if(k==0){
             //Step 6:
-            R = Utilities::tsQR_col(V,blackQ,Qtemp);
+            R = Utilities::tsQR_colfirst(V,blackQ,Qtemp);
             
             //Calculate Rinv:  (Step7)
             Utilities::invertUpperT(R,Rinv);
-            //Calculate blackh_k  (Step 7)
-            Utilities::matmat(B,Rinv,temp);
-            Utilities::matmat(R,temp,blackh_k);
             
-//            double hk = blackh_k[]
+            
+            //Calculate blackh_k  (Step 7)
+            Utilities::matmat(B,Rinv,temp,false);
+            Utilities::matmat(R,temp,blackh_k,false);
+            
+            double hk = blackh_k[s+1][s];
         }else{
             
         }
     }
+    
+    vector<double> dx = Utilities::leastSquaresQR(blackh_k,Be1);
+    Utilities::printDVector(dx);
+    dx = Utilities::matvec(blackQ,dx,false);
+    x = Utilities::axpy(x,dx);
     
     sol.converged = true;
     sol.num_its = (restart+1)*Utilities::RESTART;

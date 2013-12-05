@@ -764,14 +764,11 @@ vector < vector <double> > Utilities::tsQR_col(const vector < vector < double> >
         
         // Q and R are the right format i = 4 and beyond
         for(unsigned int i=3;i<numblk;i++){
-            int start = clock();
             RAtoAi_col(A,R_arr,Ai_arr,i*BLOCK_SIZE);
             mgs(Ai_arr,R_arr,Q_arr);
-            cout<<"time0 = "<<clock()-start<<endl;
             
             indrowAB[1] = i*BLOCK_SIZE;
             matmat(Q,Q_arr,Qtemp,shiftA,shiftB,indrowAB,indcolAB,s);
-            cout<<"time1 = "<<clock()-start<<endl;
             for(unsigned int j = 0;j<s;j++){
                 for(unsigned int i = 0; i <indrowAB[1];i++){
                     Q[j][i] = Qtemp[j][i];
@@ -781,7 +778,6 @@ vector < vector <double> > Utilities::tsQR_col(const vector < vector < double> >
                     Q[j][i+shift] = Q_arr[j][i];
                 }
             }
-            cout<<"time2 = "<<clock()-start<<endl;
 
         }
         
@@ -995,14 +991,11 @@ vector < vector <double> > Utilities::tsQR_colfirst(const vector < vector < doub
         
         // Q and R are the right format i = 4 and beyond
         for(unsigned int i=3;i<numblk;i++){
-            int start = clock();
             RAtoAi_colfirst(A,R_arr,Ai_arr,i*BLOCK_SIZE);
             mgs_first(Ai_arr,R_arr,Q_arr);
-            cout<<"time0 = "<<clock()-start<<endl;
             
             indrowAB[1] = i*BLOCK_SIZE;
             matmat_first(Q,Q_arr,Qtemp,shiftA,shiftB,indrowAB,indcolAB,sp1);
-            cout<<"time1 = "<<clock()-start<<endl;
             for(unsigned int j = 0;j<sp1;j++){
                 for(unsigned int i = 0; i <indrowAB[1];i++){
                     Q[j][i] = Qtemp[j][i];
@@ -1012,7 +1005,6 @@ vector < vector <double> > Utilities::tsQR_colfirst(const vector < vector < doub
                     Q[j][i+shift] = Q_arr[j][i];
                 }
             }
-            cout<<"time2 = "<<clock()-start<<endl;
             
         }
         

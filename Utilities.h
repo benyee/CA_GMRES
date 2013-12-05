@@ -26,7 +26,7 @@ public:
 
     static const unsigned int s = 3; // How many vectors to compute at a time for matrix powers.  Also determines the width of your TSQR matrix (I think...)
     static const unsigned int sp1 = s+1;
-    static const unsigned int RESTART = s; //This doesn't do anything for now.
+    static const unsigned int RESTART = 2*s; 
     static const unsigned int A_SIZE = 16;  //This is the size of your matrix
     static const unsigned int BLOCK_SIZE2 = 6;//7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
     static const unsigned int BLOCK_SIZE2sp1 = BLOCK_SIZE2+1;//7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
