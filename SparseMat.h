@@ -34,7 +34,7 @@ public:
     vector<unsigned int> getJA(){return JA;}
     
     void readFullMatrix(string inputfile = "example1.txt",char delim = '\t');
-    
+    void readSparseMatrix(string inputfile = "example1.txt", bool matflag = false,char delim = '\t');
     
     vector< vector<double> > convertToFullMatrix(bool rowFirst = true){return convertToFullMatrix(IA.size()-1,IA.size()-1,rowFirst);} //Default numRows and numCols to the implied num. of rows given by the size of IA
     vector< vector<double> > convertToFullMatrix(unsigned int numRows, unsigned int numCols,bool rowFirst = true);
@@ -42,6 +42,7 @@ public:
     //rowFirst = true means that [i][j] refers to the i-th row and j-th column
     
     vector<double> smvp(const vector<double> &vec);
+    void smvp(const vector<double> &vec, vector<double> &outb);
     
     //Compute (A*v_0, A^2*v_0, ... A^s*v_0)
     void regMatrixPowers(vector<vector<double> > &V, const unsigned int ind[2]);
@@ -57,6 +58,10 @@ public:
     //Classical GMRES algorithm:
     struct GMRES_sol classicalGMRES(const vector<double> &b, double tol = 1.0E-6, unsigned int max_it = 100);
     struct GMRES_sol classicalGMRES(const vector<double> &b, vector<double> x, double tol = 1.0E-6,unsigned int max_it = 100);
+    
+    //Communication avoiding GMRES:
+    struct GMRES_sol ca_GMRES(const vector<double> &b, double tol = 1.0E-6, unsigned int max_it = Utilities::RESTART);
+    struct GMRES_sol ca_GMRES(const vector<double> &b, vector<double> x, double tol = 1.0E-6,unsigned int max_it = Utilities::RESTART);
     
     void print_matrix();
     

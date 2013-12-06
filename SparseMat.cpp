@@ -57,6 +57,62 @@ void SparseMat::readFullMatrix(string inputfile, char delim){
     
 }
 
+void SparseMat::readSparseMatrix(string inputfile, bool matflag, char delim){
+    ifstream inputFile;
+    inputFile.open(inputfile.c_str());
+    
+    string line;
+    
+    unsigned int counter = 0;
+    unsigned int row = 0;
+    IA.push_back(counter);
+    while(getline(inputFile,line)){ //while not at the end of the file
+        
+        size_t found_old = 0;
+        size_t found = line.find_first_of(delim); //Find index of first tab chararacter
+        
+        for(unsigned int i = 0; i<3;i++)
+        {
+            double value = atof(line.substr(found_old,found).c_str());
+            if(i == 0){
+                if((value != row && !matflag)||(value != row+1 && matflag)){
+                    if(matflag){
+                        while(row+1 < value){
+                            row++;
+                            IA.push_back(counter);
+                        }
+                    }else{
+                        while(row < value){
+                            row++;
+                            IA.push_back(counter);
+                        }
+                    }
+                    break;
+                }
+            }else if(i == 1){
+                if(matflag){
+                    JA.push_back(value-1);
+                }else{
+                    JA.push_back(value);
+                }
+            }else{
+                A.push_back(value);
+                counter++;
+            }
+            if(i !=3){
+                found_old = found; //Remember last index
+                found=line.find_first_of(delim,found+1); //Find the index of the next tab character
+            }
+        }
+//        cout<<"counter is "<<counter<<endl;
+//        cout<<"JA.size() is "<<JA.size()<<endl;
+    }
+    
+    IA.push_back(counter); //Last entry of IA is the number of nonzeros
+    
+    
+}
+
 void SparseMat::print_matrix(){
     cout<<"A = [";
     for(unsigned int i = 0; i<A.size(); i++){
@@ -157,7 +213,6 @@ vector< vector<double> > SparseMat::convertToFullMatrix(unsigned int numRows, un
 vector<double> SparseMat::smvp(const vector<double> &vec){
     vector<double> outb;
     
-    unsigned int j; //Tracks the index of A vector
     for(unsigned int row = 0; row<IA.size()-1; row++){
         double sum = 0;
         for(unsigned int j = IA[row]; j<IA[row+1];j++){
@@ -168,38 +223,61 @@ vector<double> SparseMat::smvp(const vector<double> &vec){
     
     return outb;
 }
+void SparseMat::smvp(const vector<double> &vec,vector<double> &outb){
+    for(unsigned int row = 0; row<IA.size()-1; row++){
+        double sum = 0;
+        for(unsigned int j = IA[row]; j<IA[row+1];j++){
+            sum += A[j]*vec[JA[j]];
+        }
+        outb[row]=sum;
+    }
+}
 
 void SparseMat::regMatrixPowers(vector<vector<double> > &V, const unsigned int ind[2]){
     if(ind[0] == 0){
         return;
     }
     for(unsigned int i = ind[0]; i<ind[1];i++){
-        V[i] = smvp(V[i-1]);
+        smvp(V[i-1],V[i]);
     }
 }
 
 void SparseMat::matrixPowersMapper(){
     unsigned int counter = 0;
-    //which vector am I working on right now?
+    //which vector am I working on ri ght now?
     unsigned int whichvector = 0;
     vector<unsigned int> index = Utilities::unsignedint_zeros(Utilities::s);
     while(index[Utilities::s-1]<Utilities::A_SIZE){
-        //cout<<"Checking first condition..."<<endl;
+//        if(counter >= 24000){
+//            cout<<"counter is "<<counter<<endl;
+//            cout<<"whichvector is "<<whichvector<<endl;
+//            cout<<"index[whichvector] is "<<index[whichvector]<<endl;
+//        }
+//        cout<<"Checking first condition..."<<endl;
         if(index[whichvector] >= Utilities::A_SIZE && whichvector < Utilities::s){
             whichvector++;
-//            cout<<"Increasing whichvector because I'm done with vector "<<whichvector<<endl;
+//            if(counter > 24000){
+//                cout<<"Increasing whichvector because I'm done with vector "<<whichvector<<endl;
+            //}
             continue;
         }
         //cout<<"Checking second condition..."<<endl;
         if(whichvector < Utilities::s-1 && index[whichvector]>JA[ IA[ index[whichvector+1]+1 ]-1 ]){
             whichvector++;
-            //cout<<"Increasing whichvector because I can move on!"<<endl;
+//            if(counter > 24000){
+//                cout<<"Increasing whichvector because I can move on!"<<endl;
+//            }
             continue;
         }
-        //cout<<"Checking third condition..."<<endl;
+//        cout<<"Checking third condition..."<<endl;
+//        cout<<index.size()<<endl;
+//        cout<<JA.size()<<endl;
+//        cout<<IA.size()<<endl;
+//        cout<<index[whichvector]+1<<endl;
+//        cout<<IA[index[whichvector]+1]<<endl;
+//        cout<<whichvector<<endl;
         if(whichvector > 0 && index[whichvector-1] <= JA[ IA[ index[whichvector]+1 ]-1 ]){
             whichvector--;
-            //cout<<"Decreasing whichvector because I need to"<<endl;
             continue;
         }
         //cout<<"Computing for whichvector = "<<whichvector<<" with row = "<<index[whichvector]<<endl;
@@ -221,16 +299,16 @@ void SparseMat::matrixPowers(const vector<double> &v_0, vector<vector<double> > 
         if(whichvector){
             double local = 0;
             for(unsigned int j = IA[index]; j<IA[index+1];j++){
-                local += A[j]*V[JA[j]][whichvector-1];
+                local += A[j]*V[whichvector-1][JA[j]];
             }
-            V[index][whichvector] = local;
+            V[whichvector][index] = local;
         }else{
             double local = 0;
             for(unsigned int j = IA[index]; j<IA[index+1];j++){
                 //cout<<"Doing Aval = "<<Aval[j]<<" times "<<v_0[JA[j]]<<endl;
                 local += A[j]*v_0[JA[j]];
             }
-            V[index][0] = local;
+            V[0][index] = local;
         }
     }
 }
@@ -388,6 +466,117 @@ struct GMRES_sol SparseMat::classicalGMRES(const vector<double> &b, vector<doubl
     sol.res =res;
     return sol;
 }
+
+//Communication avoiding GMRES:
+struct GMRES_sol SparseMat::ca_GMRES(const vector<double> &b, double tol, unsigned int max_it){
+    return ca_GMRES(b,Utilities::zeros(b.size()),tol,max_it);
+}
+struct GMRES_sol SparseMat::ca_GMRES(const vector<double> &b, vector<double> x, double tol, unsigned int max_it){
+    GMRES_sol sol;
+    sol.converged = false;
+    vector<double> res;
+    
+    const unsigned int s = Utilities::s;
+    const unsigned int t = Utilities::RESTART/s;
+    const unsigned int A_SIZE= Utilities::A_SIZE;
+    
+    unsigned int restart = 0;
+    
+    vector<double> r0 = Utilities::axpy(smvp(x),-1,b);
+    double beta = Utilities::twoNorm(r0);
+    vector<double> q1 = Utilities::axpy(r0,1.0/beta);
+    
+    //Form basis matrix B:
+    vector<vector<double> > B(s+1,vector<double>(s,0));
+    for(unsigned int i = 0;i<s;i++){
+        B[i+1][i] = 1;
+    }
+    
+    //Initialize V:
+    vector<vector<double> > V(s+1,vector<double>(A_SIZE,0));
+    V[0] = q1;
+    
+    
+    //Initialize more matrices.  blackQ, Q and V are stored as transposes.  All other matrices stored as regular matrices.
+    vector<vector<double> > R;
+    vector<vector<double> > blackR((Utilities::RESTART-s)+1,vector<double>(s+1,0));
+    vector<vector<double> > Rinv(s,vector<double>(s,0));
+    vector<vector<double> > Q(V);
+    vector<vector<double> > Qtemp(Q);
+    vector<vector<double> > blackQ(Utilities::RESTART+1,vector<double>(A_SIZE,0));
+    
+    //Might need to resize this later.  This is blackH_k
+    vector<vector<double> > blackh_k(Utilities::RESTART+1,vector<double>(Utilities::RESTART,0));
+    
+    vector<vector<double> > temp(s+1,vector<double>(s,0));
+    
+    vector<vector<double> > r;
+    
+    //Step 8:
+    //beta*e1:
+    vector<double> Be1(Utilities::RESTART+1,0);
+    Be1[0] = beta;
+    
+    double hk;
+    
+    unsigned int shiftA[2] = {0,0};
+    unsigned int indrowAB[2] = {0,s+1};
+    unsigned int indcolAB[2] = {0,s};
+    for(unsigned int k = 0; k<t;k++){
+        //Matrix powers:
+        unsigned int ind[2] = {1,s+1};
+        regMatrixPowers(V, ind);
+        
+        if(k==0){
+            //Step 6:
+            R = Utilities::tsQR_colfirst(V,blackQ,Qtemp);
+            
+            //Calculate Rinv:  (Step7)
+            Utilities::invertUpperT(R,Rinv);
+            Utilities::printFullMatrix(Rinv);
+            
+            //Calculate blackh_k  (Step 7)
+            Utilities::matmat(B,Rinv,temp,false);
+            Utilities::matmat(R,temp,blackh_k,shiftA,shiftA,indrowAB,indcolAB,s+1,false);
+            
+            double hk = blackh_k[s][s-1]; //Need this for the else part later
+            
+            r=Utilities::givens_rot(blackh_k,s+1,s);
+            Utilities::apply_rot(Be1,r);
+            
+            res.push_back(abs(Be1[Be1.size()-1]));
+            cout<<"The final residual is "<<abs(Be1[Be1.size()-1])<<endl;
+            
+            //Givens rotation stuff needed here
+        }else{
+            indrowAB[1] = k*s+1;
+            indcolAB[1] = s+1;
+            Utilities::matmat_rowcol(blackQ,V,blackR,shiftA,shiftA,indrowAB,indcolAB,A_SIZE);
+            
+            V.erase(V.begin()); //Remove the first part of V
+            vector<vector<double> > temp(V);
+            Utilities::matmat_rowcol(blackQ,V,temp,shiftA,shiftA,indrowAB,indcolAB,A_SIZE);
+            
+            //Lots of steps here....
+        }
+        V.insert(V.begin(),Utilities::axpy(blackQ[(k+1)*s],1.0/Utilities::twoNorm(blackQ[(k+1)*s])));
+    }
+    indrowAB[1] = s+1;
+    indcolAB[1] = s;
+//    vector<double> dx = Utilities::leastSquaresQR(blackh_k,Be1,indrowAB,indcolAB);
+    Be1.erase(Be1.begin()+Be1.size()-1);
+    vector<double> dx = Utilities::backSub(blackh_k,Be1);
+    dx = Utilities::matvec(blackQ,dx,false);
+    x = Utilities::axpy(x,dx);
+    cout<<"The actual residual is "<<Utilities::twoNorm(Utilities::axpy(smvp(x),-1,b))<<endl;
+    
+    sol.converged = true;
+    sol.num_its = (restart+1)*Utilities::RESTART;
+    sol.x = x;
+    sol.res =res;
+    return sol;
+}
+
 
 
 
