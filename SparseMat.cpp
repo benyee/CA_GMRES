@@ -57,6 +57,62 @@ void SparseMat::readFullMatrix(string inputfile, char delim){
     
 }
 
+void SparseMat::readSparseMatrix(string inputfile, bool matflag, char delim){
+    ifstream inputFile;
+    inputFile.open(inputfile.c_str());
+    
+    string line;
+    
+    unsigned int counter = 0;
+    unsigned int row = 0;
+    IA.push_back(counter);
+    while(getline(inputFile,line)){ //while not at the end of the file
+        
+        size_t found_old = 0;
+        size_t found = line.find_first_of(delim); //Find index of first tab chararacter
+        
+        for(unsigned int i = 0; i<3;i++)
+        {
+            double value = atof(line.substr(found_old,found).c_str());
+            if(i == 0){
+                if((value != row && !matflag)||(value != row+1 && matflag)){
+                    if(matflag){
+                        while(row+1 < value){
+                            row++;
+                            IA.push_back(counter);
+                        }
+                    }else{
+                        while(row < value){
+                            row++;
+                            IA.push_back(counter);
+                        }
+                    }
+                    break;
+                }
+            }else if(i == 1){
+                if(matflag){
+                    JA.push_back(value-1);
+                }else{
+                    JA.push_back(value);
+                }
+            }else{
+                A.push_back(value);
+                counter++;
+            }
+            if(i !=3){
+                found_old = found; //Remember last index
+                found=line.find_first_of(delim,found+1); //Find the index of the next tab character
+            }
+        }
+//        cout<<"counter is "<<counter<<endl;
+//        cout<<"JA.size() is "<<JA.size()<<endl;
+    }
+    
+    IA.push_back(counter); //Last entry of IA is the number of nonzeros
+    
+    
+}
+
 void SparseMat::print_matrix(){
     cout<<"A = [";
     for(unsigned int i = 0; i<A.size(); i++){
@@ -157,7 +213,6 @@ vector< vector<double> > SparseMat::convertToFullMatrix(unsigned int numRows, un
 vector<double> SparseMat::smvp(const vector<double> &vec){
     vector<double> outb;
     
-    unsigned int j; //Tracks the index of A vector
     for(unsigned int row = 0; row<IA.size()-1; row++){
         double sum = 0;
         for(unsigned int j = IA[row]; j<IA[row+1];j++){
@@ -168,38 +223,61 @@ vector<double> SparseMat::smvp(const vector<double> &vec){
     
     return outb;
 }
+void SparseMat::smvp(const vector<double> &vec,vector<double> &outb){
+    for(unsigned int row = 0; row<IA.size()-1; row++){
+        double sum = 0;
+        for(unsigned int j = IA[row]; j<IA[row+1];j++){
+            sum += A[j]*vec[JA[j]];
+        }
+        outb[row]=sum;
+    }
+}
 
 void SparseMat::regMatrixPowers(vector<vector<double> > &V, const unsigned int ind[2]){
     if(ind[0] == 0){
         return;
     }
     for(unsigned int i = ind[0]; i<ind[1];i++){
-        V[i] = smvp(V[i-1]);
+        smvp(V[i-1],V[i]);
     }
 }
 
 void SparseMat::matrixPowersMapper(){
     unsigned int counter = 0;
-    //which vector am I working on right now?
+    //which vector am I working on ri ght now?
     unsigned int whichvector = 0;
     vector<unsigned int> index = Utilities::unsignedint_zeros(Utilities::s);
     while(index[Utilities::s-1]<Utilities::A_SIZE){
-        //cout<<"Checking first condition..."<<endl;
+//        if(counter >= 24000){
+//            cout<<"counter is "<<counter<<endl;
+//            cout<<"whichvector is "<<whichvector<<endl;
+//            cout<<"index[whichvector] is "<<index[whichvector]<<endl;
+//        }
+//        cout<<"Checking first condition..."<<endl;
         if(index[whichvector] >= Utilities::A_SIZE && whichvector < Utilities::s){
             whichvector++;
-//            cout<<"Increasing whichvector because I'm done with vector "<<whichvector<<endl;
+//            if(counter > 24000){
+//                cout<<"Increasing whichvector because I'm done with vector "<<whichvector<<endl;
+            //}
             continue;
         }
         //cout<<"Checking second condition..."<<endl;
         if(whichvector < Utilities::s-1 && index[whichvector]>JA[ IA[ index[whichvector+1]+1 ]-1 ]){
             whichvector++;
-            //cout<<"Increasing whichvector because I can move on!"<<endl;
+//            if(counter > 24000){
+//                cout<<"Increasing whichvector because I can move on!"<<endl;
+//            }
             continue;
         }
-        //cout<<"Checking third condition..."<<endl;
+//        cout<<"Checking third condition..."<<endl;
+//        cout<<index.size()<<endl;
+//        cout<<JA.size()<<endl;
+//        cout<<IA.size()<<endl;
+//        cout<<index[whichvector]+1<<endl;
+//        cout<<IA[index[whichvector]+1]<<endl;
+//        cout<<whichvector<<endl;
         if(whichvector > 0 && index[whichvector-1] <= JA[ IA[ index[whichvector]+1 ]-1 ]){
             whichvector--;
-            //cout<<"Decreasing whichvector because I need to"<<endl;
             continue;
         }
         //cout<<"Computing for whichvector = "<<whichvector<<" with row = "<<index[whichvector]<<endl;
@@ -221,16 +299,16 @@ void SparseMat::matrixPowers(const vector<double> &v_0, vector<vector<double> > 
         if(whichvector){
             double local = 0;
             for(unsigned int j = IA[index]; j<IA[index+1];j++){
-                local += A[j]*V[JA[j]][whichvector-1];
+                local += A[j]*V[whichvector-1][JA[j]];
             }
-            V[index][whichvector] = local;
+            V[whichvector][index] = local;
         }else{
             double local = 0;
             for(unsigned int j = IA[index]; j<IA[index+1];j++){
                 //cout<<"Doing Aval = "<<Aval[j]<<" times "<<v_0[JA[j]]<<endl;
                 local += A[j]*v_0[JA[j]];
             }
-            V[index][0] = local;
+            V[0][index] = local;
         }
     }
 }
