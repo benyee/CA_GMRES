@@ -734,6 +734,69 @@ void Utilities::matmat(const vector<vector<double> > &A, double B[s][BLOCK_SIZE2
     
 }
 
+vector < vector <double> > Utilities::tsQR_col(const vector < vector < double> > &A){
+    unsigned int numrow = A[0].size();
+    unsigned int numblk = numrow/BLOCK_SIZE;
+    
+    vector < vector <double> > Ai = subMatrix(A, make_pair(0,s), make_pair(0,BLOCK_SIZE));
+    pair<vector< vector<double> >, vector< vector<double> > >  QR = mgs_col(Ai);
+    vector < vector <double> > R = QR.second;
+    
+    unsigned int indrowAB[2] = {0,BLOCK_SIZE};
+    unsigned int indcolAB[2] = {0,s};
+    unsigned int shiftA[2] = {0,0};
+    unsigned int shiftB[2] = {0,0};
+    
+    if(numblk > 1){
+        // i = 2, since Q isn't the proper size yet
+        Ai = subMatrix(A, make_pair(0,s), make_pair(BLOCK_SIZE,2*BLOCK_SIZE));
+        Ai = stackMat(transpose(R),Ai,false);
+        QR = mgs_col(Ai);
+        R = QR.second;
+    }
+    if(numblk > 2){
+        // i = 3, R isn't a matrix yet
+        double Ai_arr[s][BLOCK_SIZE2];
+        RAtoAi_col(A,R,Ai_arr,BLOCK_SIZE2);
+        double R_arr[s][s];
+        double Q_arr[s][BLOCK_SIZE2];
+        mgs(Ai_arr,R_arr,Q_arr);
+        
+        // Q and R are the right format i = 4 and beyond
+        for(unsigned int i=3;i<numblk;i++){
+            RAtoAi_col(A,R_arr,Ai_arr,i*BLOCK_SIZE);
+            mgs(Ai_arr,R_arr,Q_arr);
+        }
+        
+        //Convert R back to a vector:
+        for(unsigned int i = 0; i<s;i++){
+            for(unsigned int j = 0; j<s;j++){
+                R[i][j] = R_arr[i][j];
+            }
+        }
+        //Convert Q back to a vector if necessary:
+        if(numrow % BLOCK_SIZE != 0){
+            for(unsigned int i = 0; i<s;i++){
+                for(unsigned int j = 0; j<BLOCK_SIZE2;j++){
+                    QR.first[i][j] = Q_arr[i][j];
+                }
+            }
+        }
+    }
+    
+    
+    //If there's an odd block out:
+    if (numrow % BLOCK_SIZE != 0){
+        Ai = subMatrix(A, make_pair(0,s), make_pair(numblk*BLOCK_SIZE,numrow));
+        Ai = stackMat(transpose(R),Ai,false);
+        QR = mgs_col(Ai,s,R,QR.first);
+        R = QR.second;
+    }
+    
+    return R;
+}
+
+
 vector < vector <double> > Utilities::tsQR_col(const vector < vector < double> > &A, vector< vector<double> > &Q, vector< vector<double> > &Qtemp){
     unsigned int numrow = A[0].size();
     unsigned int numblk = numrow/BLOCK_SIZE;

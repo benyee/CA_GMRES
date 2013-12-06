@@ -24,11 +24,11 @@ public:
     Utilities();
     ~Utilities();
 
-    static const unsigned int s = 4; // How many vectors to compute at a time for matrix powers.  Also determines the width of your TSQR matrix (I think...)
+    static const unsigned int s = 10; // How many vectors to compute at a time for matrix powers.  Also determines the width of your TSQR matrix (I think...)
     static const unsigned int sp1 = s+1;
     static const unsigned int RESTART = s; 
-    static const unsigned int A_SIZE = 2500;  //This is the size of your matrix
-    static const unsigned int BLOCK_SIZE2 = 2*s;//7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
+    static const unsigned int A_SIZE = 272160;  //This is the size of your matrix
+    static const unsigned int BLOCK_SIZE2 = 8000/s/3; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
     static const unsigned int BLOCK_SIZE2sp1 = BLOCK_SIZE2+1;//7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
     static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - s; //Block size for TSQR
     
@@ -112,7 +112,6 @@ public:
     static void matmat(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max,bool colFirst = true);
     static void matmat(const vector<vector<double> > &A, double B[s][BLOCK_SIZE2], vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max);
     
-    static vector < vector <double> > tsQR_col(const vector< vector<double> > &A,vector< vector<double> > &Q, vector< vector<double> > &Qtemp);
  
     //Rotates H and returns a vector r describing the rotations.
     static vector < vector<double> > givens_rot(vector< vector<double> > &H){
@@ -133,6 +132,9 @@ public:
     
     static void matmat_first(const vector<vector<double> > &A, double B[sp1][BLOCK_SIZE2sp1], vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max);
     static void matmat_rowcol(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max);
+    
+    static vector < vector <double> > tsQR_col(const vector< vector<double> > &A);
+    static vector < vector <double> > tsQR_col(const vector< vector<double> > &A,vector< vector<double> > &Q, vector< vector<double> > &Qtemp);
     
     static vector < vector <double> > tsQR_colfirst(const vector < vector < double> > &A, vector< vector<double> > &Q, vector< vector<double> > &Qtemp);
     
