@@ -1166,3 +1166,21 @@ void Utilities::mgs_first(double At[sp1][BLOCK_SIZE2sp1], double R[sp1][sp1], do
         }
     }
 }
+
+
+//Q = B*inv(A) where A is upper triangular.
+void Utilities::rt_mult_inv(const vector<vector<double> > &B, const vector<vector<double> > &A, vector<vector<double> > &Q){
+    unsigned int s = B[0].size();
+    unsigned int t = B.size();
+    
+    for(unsigned int i = 0;i<s;i++){
+        Q[0][i] = B[0][i]/A[0][0];
+        for(unsigned int j = 1; j<t;j++){
+            double temp = 0;
+            for(unsigned int m = 0; m<j;m++){
+                temp += Q[m][0]*A[m][j];
+            }
+            Q[j][i] = (B[j][i]-temp)/A[j][j];
+        }
+    }
+}

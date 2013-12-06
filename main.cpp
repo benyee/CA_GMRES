@@ -46,6 +46,7 @@ int main ()
     cout<<"CA matrix powers took"<<clock()-start<<endl;
     
     vector<vector<double> > V_reg(Utilities::sp1,vector<double>(Utilities::A_SIZE,0));
+    vector<vector<double> > Q_CA(V_CA);
     V_reg[0] = samplevec;
     unsigned int ind[2] = {1,Utilities::sp1};
     //Regular matrix powers:
@@ -60,9 +61,14 @@ int main ()
     start = clock();
     Utilities::tsQR_col(V_reg);
     cout<<"tsqr took "<<clock()-start<<endl;
+    cout<<"Running tsqr with Q = VR^-1..."<<endl;
+    start = clock();
+    vector<vector<double> > R = Utilities::tsQR_col(V_CA);
+    Utilities::rt_mult_inv(V_CA,R,Q_CA);
+    cout<<"tsqr with Q = V/R took "<<clock()-start<<endl;
     cout<<"Running mgs..."<<endl;
     start = clock();
-    Utilities::mgs_col(V_reg);
+    Utilities::mgs_col(V_CA);
     cout<<"mgs took "<<clock()-start<<endl;
     
     
