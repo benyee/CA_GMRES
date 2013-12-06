@@ -139,6 +139,9 @@ public:
     static vector < vector <double> > tsQR_colfirst(const vector < vector < double> > &A, vector< vector<double> > &Q, vector< vector<double> > &Qtemp);
     
     static void mgs_first(double At[sp1][BLOCK_SIZE2sp1], double R[sp1][sp1], double Q[sp1][BLOCK_SIZE2sp1]);
+    
+    //Q = B*inv(A) where A is upper triangular.
+    static void rt_mult_inv(const vector<vector<double> > &B, const vector<vector<double> > &A, vector<vector<double> > &Q);
     //**************
     static double twoNorm(const vector<double> &x);
     static double infNorm(const vector<double> &x);
