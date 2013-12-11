@@ -46,6 +46,8 @@ public:
     
     //Compute (A*v_0, A^2*v_0, ... A^s*v_0)
     void regMatrixPowers(vector<vector<double> > &V, const unsigned int ind[2]);
+    
+    //CA matrix powers attempt:
     void matrixPowersMapper();
     void matrixPowers(const vector<double> &v_0, /*const vector<double> &th, */vector<vector<double> > &V);
     //Takes in two inputs.  v_0 is the starting vector.  V is the matrix to store the matrix powers in.

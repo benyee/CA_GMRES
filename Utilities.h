@@ -24,12 +24,12 @@ public:
     Utilities();
     ~Utilities();
 
-    static const unsigned int s = 10; // How many vectors to compute at a time for matrix powers.  Also determines the width of your TSQR matrix (I think...)
+    static const unsigned int s = 15; // How many vectors to compute at a time for matrix powers.  Also determines the width of your TSQR matrix (I think...)
     static const unsigned int sp1 = s+1;
     static const unsigned int RESTART = s; 
     static const unsigned int A_SIZE = 272160;  //This is the size of your matrix
     static const unsigned int BLOCK_SIZE2 = 8000/s/3; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
-    static const unsigned int BLOCK_SIZE2sp1 = BLOCK_SIZE2+1;//7200/s; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s
+    static const unsigned int BLOCK_SIZE2sp1 = BLOCK_SIZE2+1; //Block size for TSQR + s.  This value should always be equal to BLOCK_SIZE + s.  For a 64 KB L1 cache, try setting this equal to ~8000/(3*s)
     static const unsigned int BLOCK_SIZE = BLOCK_SIZE2 - s; //Block size for TSQR
     
     static void printDVector(const vector<double> &vec); //Prints out a vector of doubles
@@ -122,7 +122,7 @@ public:
     static void apply_rot(vector<double> &z,const vector<vector<double> > &r,unsigned int startind = 0,unsigned int endind = 0);
     static void apply_rot(vector<vector<double> > &H,const vector<vector<double> > &r,unsigned int startind = 0,unsigned int endind = 0, unsigned int numcols = 0);
     
-    
+    //Invert upper triangular matrix:
     static void invertUpperT(vector< vector<double> > &R, vector< vector<double> > &Rinv);
     static void invertUpperT(vector< vector<double> > &R, vector< vector<double> > &Rinv, unsigned int width);
     //**********
@@ -131,9 +131,12 @@ public:
     static void RAtoAi_colfirst(const vector<vector<double> >  &A, double R[sp1][sp1], double Ai[sp1][BLOCK_SIZE2sp1], double ind1);
     
     static void matmat_first(const vector<vector<double> > &A, double B[sp1][BLOCK_SIZE2sp1], vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max);
+    //AB = AB, where A is passed in as A and B is passed in as B^T
     static void matmat_rowcol(const vector<vector<double> > &A, const vector<vector<double> > &B, vector<vector<double> > &AB, unsigned int shiftA[2], unsigned int shiftB[2], unsigned int indrowAB[2],unsigned int indcolAB[2],unsigned int m_max);
     
+    //This does NOT compute Q at all:
     static vector < vector <double> > tsQR_col(const vector< vector<double> > &A);
+    //This explicitly computes Q (and takes a very long time):
     static vector < vector <double> > tsQR_col(const vector< vector<double> > &A,vector< vector<double> > &Q, vector< vector<double> > &Qtemp);
     
     static vector < vector <double> > tsQR_colfirst(const vector < vector < double> > &A, vector< vector<double> > &Q, vector< vector<double> > &Qtemp);
